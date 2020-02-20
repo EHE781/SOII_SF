@@ -2,7 +2,8 @@
 static int fd = 0; //file descriptor
 
 int bmount(const char *camino){
-    fd = open(camino, 0666 ,BLOCKSIZE);
+    umask(000);
+    fd = open(camino, O_RDWR|O_CREAT, 0666);
 if(fd == -1){
     fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
     return EXIT_FAILURE;
