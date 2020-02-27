@@ -1,8 +1,5 @@
 #include "ficheros_basico.h"
-<<<<<<< HEAD
-=======
 struct superbloque SB;
->>>>>>> 93f611ccc4fa8532ea6816c1bc67985a015665fe
 
 int tamMB(unsigned int nbloques){
     int size = 0;
@@ -36,7 +33,6 @@ int initSB(unsigned int nbloques, unsigned int ninodos){
     SB.totInodos = ninodos;
     bwrite(posSB, buf);
 }
-<<<<<<< HEAD
 int initMB(){
     int setBloques = SB.cantBloquesLibres; //cuantos bloques de datos se ponen a 0
     int bloque = SB.posPrimerBloqueDatos; //primer bloque de datos en el cual escribir
@@ -89,6 +85,3 @@ int initAI(){
         bwrite(primero, buf);   //rellena de 0s el espacio restante
     }*/
 }
-=======
-///continuara...
->>>>>>> 93f611ccc4fa8532ea6816c1bc67985a015665fe

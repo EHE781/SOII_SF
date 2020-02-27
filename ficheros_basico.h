@@ -1,16 +1,10 @@
 #include "bloques.h"
-<<<<<<< HEAD
 #include <time.h>
 #include <limits.h> 
 #define INODOSIZE 128
 #define posSB 0
 #define tamSB 1
 #define MAX_INODO (BLOCKSIZE/INODOSIZE)
-=======
-#define INODOSIZE 128
-#define posSB 0
-#define tamSB 1
->>>>>>> 93f611ccc4fa8532ea6816c1bc67985a015665fe
 struct superbloque {
    unsigned int posPrimerBloqueMB;             // Posición del primer bloque del mapa de bits en el SF
    unsigned int posUltimoBloqueMB;             // Posición del último bloque del mapa de bits en el SF
@@ -56,7 +50,6 @@ struct inodo {     // comprobar que ocupa 128 bytes haciendo un sizeof(inodo)!!!
        padding[INODOSIZE - 2 * sizeof(unsigned char) - 3 * sizeof(time_t) - 18 * sizeof(unsigned int) - 6 * sizeof(unsigned char)];
    // Hay que restar también lo que ocupen las variables de alineación utilizadas!!!
 };
-<<<<<<< HEAD
 struct superbloque SB;
 struct inodo inodos[BLOCKSIZE/INODOSIZE];
 int tamMB(unsigned int nbloques);
@@ -64,9 +57,3 @@ int tamAI(unsigned int ninodos);
 int initSB(unsigned int nbloques, unsigned int ninodos);
 int initMB();
 int initAI();
-=======
-
-int tamMB(unsigned int nbloques);
-int tamAI(unsigned int ninodos);
-int initSB(unsigned int nbloques, unsigned int ninodos);
->>>>>>> 93f611ccc4fa8532ea6816c1bc67985a015665fe
