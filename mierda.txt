@@ -1,0 +1,18 @@
+total 252
+-rw-r--r-- 1 mcmera mcmera   1149 feb 27 16:49 bloques.c
+-rw-r--r-- 1 mcmera mcmera    572 feb 27 16:49 bloques.h
+-rw-r--r-- 1 mcmera mcmera   9384 feb 27 16:49 bloques.o
+-rw-r--r-- 1 mcmera mcmera   4146 feb 27 16:49 ficheros_basico.c
+-rw-r--r-- 1 mcmera mcmera   3774 feb 27 16:49 ficheros_basico.h
+-rw-r--r-- 1 mcmera mcmera  11832 feb 27 16:49 ficheros_basico.o
+-rw-r--r-- 1 mcmera mcmera 139284 feb 27 16:49 leerDisco.txt
+-rw-r--r-- 1 mcmera mcmera  17752 feb 27 16:49 leer_SF
+-rw-r--r-- 1 mcmera mcmera   1909 feb 27 16:49 leer_SF.c
+-rw-r--r-- 1 mcmera mcmera    972 feb 27 16:49 Makefile
+-rw-r--r-- 1 mcmera mcmera      0 feb 27 16:51 mierda.txt
+-rwxr-xr-x 1 mcmera mcmera  17760 feb 27 16:49 mi_mkfs
+-rw-r--r-- 1 mcmera mcmera    537 feb 27 16:49 mi_mkfs.c
+drwxr-xr-x 2 mcmera mcmera   4096 feb 27 16:49 PARTE 1
+drwxr-xr-x 2 mcmera mcmera   4096 feb 27 16:49 PARTE 2
+-rw-r--r-- 1 mcmera mcmera     70 feb 27 16:49 Prueba.c
+-rw-r--r-- 1 mcmera mcmera    278 feb 27 16:49 README
