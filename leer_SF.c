@@ -20,8 +20,8 @@ printf("cantBloquesLibres: %i\n", SB.cantBloquesLibres);
 printf("cantInodosLibres: %i\n", SB.cantInodosLibres);
 printf("totBloques: %i\n", SB.totBloques);
 printf("totInodos: %i\n\n", SB.totInodos);
-printf("sizeof struct superbloque: %li\n", sizeof(struct superbloque));
-printf("sizeof struct inodo: %li\n\n", sizeof(struct inodo));
+printf("sizeof struct superbloque: %lu\n", sizeof(struct superbloque));
+printf("sizeof struct inodo: %lu\n\n", sizeof(struct inodo));
 printf("RECORRIDO LISTA ENLAZADA DE INODOS LIBRES:\n");
 int bloqueAI = SB.posPrimerBloqueAI;
 int changeBloque = MAX_INODO; // variable para contar cuando cambiar de bloque
