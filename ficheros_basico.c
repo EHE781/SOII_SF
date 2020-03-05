@@ -60,3 +60,63 @@ int initAI(){
         bwrite(i, &inodos); // en teoria bien si no hacer con buf
     }
 }
+    int escribir_bit(unsigned int nbloque, unsigned int bit) {
+        unsigned char mascara = 128; // 10000000
+        unsigned char *bufferMB;
+        int posbyte = nbloque/8;
+        int posbit = nbloque % 8;
+        int nbloqueabs = posbyte / BLOCKSIZE + SB.posPrimerBloqueMB;
+        bread(nbloqueabs,bufferMB);
+        posbyte = posbyte % BLOCKSIZE;
+        mascara >>= posbit; // desplazamiento de bits a la derecha
+        if(bit == 0){
+            bufferMB[posbyte] &= ~mascara; 
+        }
+        else{
+            bufferMB[posbyte] |= mascara; 
+        }
+        bwrite(nbloqueabs,bufferMB);
+    }
+unsigned char leer_bit(unsigned int nbloque){
+        unsigned char mascara = 128; // 10000000
+        unsigned char *bufferMB;
+        int posbyte = nbloque / 8;
+        int posbit = nbloque % 8;
+        int nbloqueabs = posbyte / BLOCKSIZE + SB.posPrimerBloqueMB;
+        bread(nbloqueabs,bufferMB);
+        posbyte = posbyte % BLOCKSIZE;
+        mascara >>= posbit;
+        bufferMB[posbyte] &= mascara; // p.e->posbit=3 --> resultado-> 000x0000
+        if(bufferMB[posbyte] == 0){ //si x=0
+            return 0;
+        }
+        else{ // si x=1
+            return 1;
+        }
+
+}
+int reservar_bloque(){
+    int cmp=0;
+    bool equal=true;
+    int posBloqueMB=SB.posPrimerBloqueMB;
+    const void *bufferMB;
+    const void *bufferAux;
+    memset(bufferAux,255,BLOCKSIZE);
+    if(SB.cantBloquesLibres>0){
+        while(equal == true){
+        bread(posBloqueMB,bufferMB);
+        cmp=memcmp(bufferMB,bufferAux,BLOCKSIZE);
+        if(cmp!=0){
+            equal=false;
+        }
+        posBloqueMB++;
+        }
+        return posBloqueMB - SB.posPrimerBloqueMB;
+    }
+    else{
+        //no hay bloques disponibles
+        return EXIT_FAILURE; //supongo xd
+    }
+}
+
+
