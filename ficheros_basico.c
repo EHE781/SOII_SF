@@ -133,6 +133,7 @@ int liberar_bloque(unsigned int nbloque){
     mascara>>=posbit;
     bufferMB[posbyte]&=~mascara;
     bwrite(nbloqueabs,bufferMB);
+    SB.cantBloquesLibres++;
     return nbloque;
 }
 
