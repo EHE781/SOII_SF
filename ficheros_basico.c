@@ -98,6 +98,8 @@ unsigned char leer_bit(unsigned int nbloque){
 int reservar_bloque(){
     int cmp=0;
     bool equal=true;
+    bool equalv2=true;
+    int posbyte=0;
     int posBloqueMB=SB.posPrimerBloqueMB;
     const void *bufferMB;
     const void *bufferAux;
@@ -111,12 +113,27 @@ int reservar_bloque(){
         }
         posBloqueMB++;
         }
-        return posBloqueMB - SB.posPrimerBloqueMB;
+        posBloqueMB=posBloqueMB-SB.posPrimerBloqueMB;
+        //queda encontrar posbyte despues posbit y cambiar bit para reservar el bloque
+        //y decrementar bloques libres del superbloque
+        //returnear nbloque reservado
     }
     else{
         //no hay bloques disponibles
         return EXIT_FAILURE; //supongo xd
     }
+}
+int liberar_bloque(unsigned int nbloque){
+    unsigned char mascara = 128; // 10000000
+    unsigned char *bufferMB;
+    int posbyte = nbloque / 8;
+    int posbit = nbloque % 8;
+    int nbloqueabs = posbyte / BLOCKSIZE + SB.posPrimerBloqueMB;
+    bread(nbloqueabs,bufferMB);
+    mascara>>=posbit;
+    bufferMB[posbyte]&=~mascara;
+    bwrite(nbloqueabs,bufferMB);
+    return nbloque;
 }
 
 
