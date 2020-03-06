@@ -60,3 +60,4 @@ int initAI();
 int escribir_bit(unsigned int nbloque, unsigned int bit);
 unsigned char leer_bit(unsigned int nbloque);
 int reservar_bloque();
+int liberar_bloque(unsigned int nbloque);
