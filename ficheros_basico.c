@@ -97,12 +97,14 @@ unsigned char leer_bit(unsigned int nbloque){
 }
 int reservar_bloque(){
     int cmp=0;
+    unsigned int nbloque;
     bool equal=true;
     bool equalv2=true;
     int posbyte=0;
     int posBloqueMB=SB.posPrimerBloqueMB;
     const void *bufferMB;
     const void *bufferAux;
+    unsigned char *byteBuff;
     memset(bufferAux,255,BLOCKSIZE);
     if(SB.cantBloquesLibres>0){
         while(equal == true){
@@ -114,13 +116,28 @@ int reservar_bloque(){
         posBloqueMB++;
         }
         posBloqueMB=posBloqueMB-SB.posPrimerBloqueMB;
+        memcpy(byteBuff, bufferMB, BLOCKSIZE);//ella lo hace con bufferMB pero no me va, ask coti
+        for (int i = 0; i < BLOCKSIZE; i++)
+        if(byteBuff[i] != 255){
+            posbyte = i;
+            break;
+        }
+        unsigned char mascara = 128; // 10000000
+        int posbit = 0;
+        while (byteBuff[posbyte] & mascara) {  
+            posbit++;
+            byteBuff[posbyte] <<= 1; // desplaz. de bits a la izqda
+        }
+        nbloque = ((posBloqueMB - SB.posPrimerBloqueMB) * BLOCKSIZE+ posbyte) * 8 + posbit;
+        escribir_bit(nbloque, 1);
+        return nbloque;
         //queda encontrar posbyte despues posbit y cambiar bit para reservar el bloque
         //y decrementar bloques libres del superbloque
         //returnear nbloque reservado
     }
     else{
         //no hay bloques disponibles
-        return EXIT_FAILURE; //supongo xd
+        return EXIT_FAILURE;
     }
 }
 int liberar_bloque(unsigned int nbloque){
