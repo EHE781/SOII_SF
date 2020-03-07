@@ -131,9 +131,7 @@ int reservar_bloque(){
         nbloque = ((posBloqueMB - SB.posPrimerBloqueMB) * BLOCKSIZE+ posbyte) * 8 + posbit;
         escribir_bit(nbloque, 1);
         return nbloque;
-        //queda encontrar posbyte despues posbit y cambiar bit para reservar el bloque
-        //y decrementar bloques libres del superbloque
-        //returnear nbloque reservado
+        
     }
     else{
         //no hay bloques disponibles
