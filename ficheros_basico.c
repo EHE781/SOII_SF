@@ -59,29 +59,82 @@ int initAI(){
         //memcpy(buf, &inodos, sizeof(inodos));
         bwrite(i, &inodos); // en teoria bien si no hacer con buf
     }
-    /*
-    int primero = SB.posPrimerBloqueAI + 1;     //primer bloque en el que se empieza a escribir
-    void *buf; //buffer para almacenar datos y posteriormente escribirlas
-    buf = (struct inodo*)inodos;
-    int inodoCont = 0; //variable contador porque sabemos que caben BLOCKSIZE/INODOSIZE inodos en un bloque;
-    for (int i = 0; i < SB.posUltimoBloqueAI; i++){ //un for para todos los inodos
-        if (i == (SB.posUltimoBloqueAI - 1)){ //si es la ultima iteración
-            conIn = UINT_MAX;   //apuntar al maximo entero sin signo
-        }
-        if (inodoCont == (MAX_INODO)){ // si se han escrito los inodos maximos en un bloque
-            memcpy(buf, &inodos, sizeof(inodos)); //escribimos los inodos que tenemos con tamaño del array
-            bwrite(primero, buf);   //escribe el bloque y lo incrementa
-            primero ++;
-            inodoCont = 0; //reset del contador de inodos
-        }
-        inodos[inodoCont].punterosDirectos[0] = conIn;
-        conIn ++; //incrementamos el valor, apunta al inodo siguiente, luego al siguiente....
-        inodoCont ++; //decrementamos en 1 la cantidad de inodos posibles
-    }
-       IMPORTANTE, HACE FALTA ESCRIBIR 0S DONDE NO HAY MAS DATOS EN EL ULTIMO BLOQUE?
-    if (inodoCont != 0 && inodoCont != MAX_INODO) {//SI no se ha escrito todo el bloque y no es el bloque siguiente(escrito bloque completo)
-        int noEscrito = MAX_INODO - inodoCont; //los que caben - los que ya ha escrito = espacio no escrito
-        memset(buf, 0, noEscrito);
-        bwrite(primero, buf);   //rellena de 0s el espacio restante
-    }*/
 }
+    int escribir_bit(unsigned int nbloque, unsigned int bit) {
+        unsigned char mascara = 128; // 10000000
+        unsigned char *bufferMB;
+        int posbyte = nbloque/8;
+        int posbit = nbloque % 8;
+        int nbloqueabs = posbyte / BLOCKSIZE + SB.posPrimerBloqueMB;
+        bread(nbloqueabs,bufferMB);
+        posbyte = posbyte % BLOCKSIZE;
+        mascara >>= posbit; // desplazamiento de bits a la derecha
+        if(bit == 0){
+            bufferMB[posbyte] &= ~mascara; 
+        }
+        else{
+            bufferMB[posbyte] |= mascara; 
+        }
+        bwrite(nbloqueabs,bufferMB);
+    }
+unsigned char leer_bit(unsigned int nbloque){
+        unsigned char mascara = 128; // 10000000
+        unsigned char *bufferMB;
+        int posbyte = nbloque / 8;
+        int posbit = nbloque % 8;
+        int nbloqueabs = posbyte / BLOCKSIZE + SB.posPrimerBloqueMB;
+        bread(nbloqueabs,bufferMB);
+        posbyte = posbyte % BLOCKSIZE;
+        mascara >>= posbit;
+        bufferMB[posbyte] &= mascara; // p.e->posbit=3 --> resultado-> 000x0000
+        if(bufferMB[posbyte] == 0){ //si x=0
+            return 0;
+        }
+        else{ // si x=1
+            return 1;
+        }
+
+}
+int reservar_bloque(){
+    int cmp=0;
+    bool equal=true;
+    bool equalv2=true;
+    int posbyte=0;
+    int posBloqueMB=SB.posPrimerBloqueMB;
+    const void *bufferMB;
+    const void *bufferAux;
+    memset(bufferAux,255,BLOCKSIZE);
+    if(SB.cantBloquesLibres>0){
+        while(equal == true){
+        bread(posBloqueMB,bufferMB);
+        cmp=memcmp(bufferMB,bufferAux,BLOCKSIZE);
+        if(cmp!=0){
+            equal=false;
+        }
+        posBloqueMB++;
+        }
+        posBloqueMB=posBloqueMB-SB.posPrimerBloqueMB;
+        //queda encontrar posbyte despues posbit y cambiar bit para reservar el bloque
+        //y decrementar bloques libres del superbloque
+        //returnear nbloque reservado
+    }
+    else{
+        //no hay bloques disponibles
+        return EXIT_FAILURE; //supongo xd
+    }
+}
+int liberar_bloque(unsigned int nbloque){
+    unsigned char mascara = 128; // 10000000
+    unsigned char *bufferMB;
+    int posbyte = nbloque / 8;
+    int posbit = nbloque % 8;
+    int nbloqueabs = posbyte / BLOCKSIZE + SB.posPrimerBloqueMB;
+    bread(nbloqueabs,bufferMB);
+    mascara>>=posbit;
+    bufferMB[posbyte]&=~mascara;
+    bwrite(nbloqueabs,bufferMB);
+    SB.cantBloquesLibres++;
+    return nbloque;
+}
+
+

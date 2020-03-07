@@ -1,6 +1,7 @@
 #include "bloques.h"
 #include <time.h>
 #include <limits.h> 
+#include <stdbool.h>
 #define INODOSIZE 128
 #define posSB 0
 #define tamSB 1
@@ -50,10 +51,13 @@ struct inodo {     // comprobar que ocupa 128 bytes haciendo un sizeof(inodo)!!!
        padding[INODOSIZE - 2 * sizeof(unsigned char) - 3 * sizeof(time_t) - 18 * sizeof(unsigned int) - 6 * sizeof(unsigned char)];
    // Hay que restar también lo que ocupen las variables de alineación utilizadas!!!
 };
-struct superbloque SB;
 struct inodo inodos[BLOCKSIZE/INODOSIZE];
 int tamMB(unsigned int nbloques);
 int tamAI(unsigned int ninodos);
 int initSB(unsigned int nbloques, unsigned int ninodos);
 int initMB();
 int initAI();
+int escribir_bit(unsigned int nbloque, unsigned int bit);
+unsigned char leer_bit(unsigned int nbloque);
+int reservar_bloque();
+int liberar_bloque(unsigned int nbloque);
