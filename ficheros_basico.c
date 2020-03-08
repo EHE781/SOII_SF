@@ -2,8 +2,11 @@
 struct superbloque SB;
 
 int tamMB(unsigned int nbloques){
-    int size = 0;
-    if((size = ((nbloques/8)/BLOCKSIZE)) % 1 != 0){ //si el tamaño de asignacion es decimal (12,3), añadir un bloque (13)
+    int size = ((nbloques/8)/BLOCKSIZE);
+    double byteSize = nbloques/8;
+    double blockSize = byteSize/BLOCKSIZE;
+    double check = blockSize - (unsigned) blockSize;
+    if(check != 0){ //si el tamaño de asignacion es decimal (12,3), añadir un bloque (13)
         size ++;
     }
     return size;
@@ -43,6 +46,9 @@ int initMB(){
         result = bwrite(bloque, buf);
         bloque ++;
     }
+    for(int i = 0; i < SB.posPrimerBloqueDatos; i++){ //reservamos los bloques de los META-datos
+    reservar_bloque();
+    }
     return result;
 }
 int initAI(){
@@ -66,8 +72,7 @@ int initAI(){
 }
     int escribir_bit(unsigned int nbloque, unsigned int bit) {
         unsigned char mascara = 128; // 10000000
-        unsigned char *bufferMB;
-        bufferMB = 0; //si no lloraba
+        unsigned char *bufferMB = malloc(BLOCKSIZE);
         int posbyte = nbloque/8;
         int posbit = nbloque % 8;
         int nbloqueabs = posbyte / BLOCKSIZE + SB.posPrimerBloqueMB;
@@ -80,9 +85,10 @@ int initAI(){
         else{
             bufferMB[posbyte] |= mascara; 
         }
+        free(bufferMB);
         return bwrite(nbloqueabs,bufferMB);
     }
-/*
+
 unsigned char leer_bit(unsigned int nbloque){
         unsigned char mascara = 128; // 10000000
         unsigned char *bufferMB;
@@ -102,7 +108,7 @@ unsigned char leer_bit(unsigned int nbloque){
         }
 
 }
-*/
+/*
 unsigned char leer_bit(unsigned int bit){
         unsigned char mascara = 128; // 10000000
         unsigned char *bufferMB;
@@ -122,28 +128,25 @@ unsigned char leer_bit(unsigned int bit){
             return 1;
         }
 
-}
+}*/
 int reservar_bloque(){
     if(SB.cantBloquesLibres == 0){
         return EXIT_FAILURE;
     }
     int cmp=0;
     unsigned int nbloque;
-    bool equal=true;
-    int posbyte=0;
+    bool equal = true;
+    int posbyte = 0;
     int posBloqueMB = SB.posPrimerBloqueMB;
-    unsigned char *bufferMB;
-    const char *bufferMBAux;
-    bufferMB = 0; //si no da  warning
-    const unsigned char *bufferAux;
-    bufferAux = 0;
-    memset(bufferAux,255,BLOCKSIZE);
+    unsigned char *bufferMB = malloc(BLOCKSIZE);
+    const unsigned char *bufferAux = malloc(BLOCKSIZE);
+    memset(bufferAux,255,BLOCKSIZE); //problem here
         while(equal == true){
         bread(posBloqueMB,bufferMB);
-        memcpy(bufferMBAux, bufferMB,BLOCKSIZE);
-        cmp=memcmp(bufferMBAux,bufferAux,BLOCKSIZE);
-        if(cmp!=0){
+        cmp=memcmp(bufferMB,bufferAux,BLOCKSIZE);
+        if(cmp != 0){
             equal=false;
+            break;
         }
         posBloqueMB++;
         }
@@ -163,6 +166,8 @@ int reservar_bloque(){
         escribir_bit(nbloque, 1);
         SB.cantBloquesLibres--;
         bwrite(posSB, &SB);
+        free(bufferMB);
+        free(bufferAux);
         return nbloque;
 }
 int liberar_bloque(unsigned int nbloque){
