@@ -1,6 +1,7 @@
 #include    "bloques.h"
 #include    "ficheros_basico.h"
 const char *dir;
+struct superbloque SB;
 void *buf[BLOCKSIZE];
 int main(int argc, char **argv){
 dir = argv[1];
@@ -24,12 +25,11 @@ printf("sizeof struct superbloque: %lu\n", sizeof(struct superbloque));
 printf("sizeof struct inodo: %lu\n\n", sizeof(struct inodo));
 printf("RECORRIDO LISTA ENLAZADA DE INODOS LIBRES:\n");
 int bloqueAI = SB.posPrimerBloqueAI;
-int changeBloque = MAX_INODO; // variable para contar cuando cambiar de bloque
 int contInodo = 0; //variable para leer inodo a inodo en un bloque
 for(int i = SB.posPrimerBloqueAI; i <= SB.posUltimoBloqueAI; i++){
     bread(bloqueAI, &inodos); //si no en vez de &inodos meter buf
     //memcpy(&inodos, buf, sizeof(inodos));
-    for (int j = 0; j < MAX_INODO; j++){
+    for (int j = 0; j < BLOCKSIZE/INODOSIZE; j++){
     if (contInodo >= SB.totInodos ){
         printf("%i \n", inodos[j].punterosDirectos[0]);
             break;

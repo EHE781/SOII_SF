@@ -1,6 +1,5 @@
 #include "bloques.h"
 #include "ficheros_basico.h"
-#include "ficheros_basico.h"
 const char *cwd;
 int nbloques = 0;
 unsigned char *buf[BLOCKSIZE];

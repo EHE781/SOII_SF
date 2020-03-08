@@ -5,7 +5,6 @@
 #define INODOSIZE 128
 #define posSB 0
 #define tamSB 1
-#define MAX_INODO (BLOCKSIZE/INODOSIZE)
 struct superbloque {
    unsigned int posPrimerBloqueMB;             // Posición del primer bloque del mapa de bits en el SF
    unsigned int posUltimoBloqueMB;             // Posición del último bloque del mapa de bits en el SF
@@ -61,3 +60,4 @@ int escribir_bit(unsigned int nbloque, unsigned int bit);
 unsigned char leer_bit(unsigned int nbloque);
 int reservar_bloque();
 int liberar_bloque(unsigned int nbloque);
+int escribir_inodo(unsigned int ninodo, struct inodo inodo);

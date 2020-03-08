@@ -31,22 +31,25 @@ int initSB(unsigned int nbloques, unsigned int ninodos){
     SB.cantInodosLibres = ninodos; //recordar lo mismo que con los bloques libres
     SB.totBloques = nbloques;
     SB.totInodos = ninodos;
-    bwrite(posSB, buf);
+    return bwrite(posSB, buf);
 }
 int initMB(){
     int setBloques = SB.cantBloquesLibres; //cuantos bloques de datos se ponen a 0
     int bloque = SB.posPrimerBloqueDatos; //primer bloque de datos en el cual escribir
     void *buf[BLOCKSIZE];
-    memset(buf, 0, BLOCKSIZE);  //preparamos un buffer tamaño BLOCKSIZE para escribir 0s
+    memset(buf, 0, BLOCKSIZE);  //preparamos un buffer tamaño BLOCKSIZE
+    int result;
     for(int i = 0; i < setBloques; i ++){
-        bwrite(bloque, buf);
+        result = bwrite(bloque, buf);
         bloque ++;
     }
+    return result;
 }
 int initAI(){
     int contInodos = SB.posPrimerInodoLibre + 1; //conector de inodos incremental
+    int result;
     for ( int i = SB.posPrimerBloqueAI; i <= SB.posUltimoBloqueAI; i++){
-        for (int j = 0; j < MAX_INODO; j++){
+        for (int j = 0; j < BLOCKSIZE/INODOSIZE; j++){
             inodos[j].tipo = 'l'; //tipo libre
             if (contInodos < SB.totInodos){
                 inodos[j].punterosDirectos[0] = contInodos;
@@ -57,12 +60,14 @@ int initAI(){
             }
         }
         //memcpy(buf, &inodos, sizeof(inodos));
-        bwrite(i, &inodos); // en teoria bien si no hacer con buf
+        result = bwrite(i, &inodos); // en teoria bien si no hacer con buf
     }
+    return result;
 }
     int escribir_bit(unsigned int nbloque, unsigned int bit) {
         unsigned char mascara = 128; // 10000000
         unsigned char *bufferMB;
+        bufferMB = 0; //si no lloraba
         int posbyte = nbloque/8;
         int posbit = nbloque % 8;
         int nbloqueabs = posbyte / BLOCKSIZE + SB.posPrimerBloqueMB;
@@ -75,11 +80,12 @@ int initAI(){
         else{
             bufferMB[posbyte] |= mascara; 
         }
-        bwrite(nbloqueabs,bufferMB);
+        return bwrite(nbloqueabs,bufferMB);
     }
 unsigned char leer_bit(unsigned int nbloque){
         unsigned char mascara = 128; // 10000000
         unsigned char *bufferMB;
+        bufferMB = 0;
         int posbyte = nbloque / 8;
         int posbit = nbloque % 8;
         int nbloqueabs = posbyte / BLOCKSIZE + SB.posPrimerBloqueMB;
@@ -99,12 +105,12 @@ int reservar_bloque(){
     int cmp=0;
     unsigned int nbloque;
     bool equal=true;
-    bool equalv2=true;
     int posbyte=0;
     int posBloqueMB=SB.posPrimerBloqueMB;
-    const void *bufferMB;
-    const void *bufferAux;
-    unsigned char *byteBuff;
+    unsigned char *bufferMB;
+    bufferMB = 0; //si no da  warning
+    unsigned char *bufferAux;
+    bufferAux = 0;
     memset(bufferAux,255,BLOCKSIZE);
     if(SB.cantBloquesLibres>0){
         while(equal == true){
@@ -116,19 +122,18 @@ int reservar_bloque(){
         posBloqueMB++;
         }
         posBloqueMB=posBloqueMB-SB.posPrimerBloqueMB;
-        memcpy(byteBuff, bufferMB, BLOCKSIZE);//ella lo hace con bufferMB pero no me va, ask coti
         for (int i = 0; i < BLOCKSIZE; i++)
-        if(byteBuff[i] != 255){
+        if(bufferMB[i] != 255){
             posbyte = i;
             break;
         }
         unsigned char mascara = 128; // 10000000
         int posbit = 0;
-        while (byteBuff[posbyte] & mascara) {  
+        while (bufferMB[posbyte] & mascara) {  
             posbit++;
-            byteBuff[posbyte] <<= 1; // desplaz. de bits a la izqda
+            bufferMB[posbyte] <<= 1; // desplaz. de bits a la izqda
         }
-        nbloque = ((posBloqueMB - SB.posPrimerBloqueMB) * BLOCKSIZE+ posbyte) * 8 + posbit;
+        nbloque = ((posBloqueMB - SB.posPrimerBloqueMB) * BLOCKSIZE + posbyte) * 8 + posbit;
         escribir_bit(nbloque, 1);
         return nbloque;
         
@@ -141,6 +146,7 @@ int reservar_bloque(){
 int liberar_bloque(unsigned int nbloque){
     unsigned char mascara = 128; // 10000000
     unsigned char *bufferMB;
+    bufferMB = 0;
     int posbyte = nbloque / 8;
     int posbit = nbloque % 8;
     int nbloqueabs = posbyte / BLOCKSIZE + SB.posPrimerBloqueMB;
