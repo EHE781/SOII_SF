@@ -82,6 +82,7 @@ int initAI(){
         }
         return bwrite(nbloqueabs,bufferMB);
     }
+/*
 unsigned char leer_bit(unsigned int nbloque){
         unsigned char mascara = 128; // 10000000
         unsigned char *bufferMB;
@@ -101,27 +102,52 @@ unsigned char leer_bit(unsigned int nbloque){
         }
 
 }
+*/
+unsigned char leer_bit(unsigned int bit){
+        unsigned char mascara = 128; // 10000000
+        unsigned char *bufferMB;
+        bufferMB = 0;
+        int nbloque = bit * 8/BLOCKSIZE; //determinamos el bloque en el que esta
+        int nbloqueabs = nbloque + SB.posPrimerBloqueMB;
+        int posbyte = nbloque / 8;
+        int posbit = nbloque % 8;
+        bread(nbloqueabs,bufferMB);
+        posbyte = posbyte % BLOCKSIZE;
+        mascara >>= posbit;
+        bufferMB[posbyte] &= mascara; // p.e->posbit=3 --> resultado-> 000x0000
+        if(bufferMB[posbyte] == 0){ //si x=0
+            return 0;
+        }
+        else{ // si x=1
+            return 1;
+        }
+
+}
 int reservar_bloque(){
+    if(SB.cantBloquesLibres == 0){
+        return EXIT_FAILURE;
+    }
     int cmp=0;
     unsigned int nbloque;
     bool equal=true;
     int posbyte=0;
-    int posBloqueMB=SB.posPrimerBloqueMB;
+    int posBloqueMB = SB.posPrimerBloqueMB;
     unsigned char *bufferMB;
+    const char *bufferMBAux;
     bufferMB = 0; //si no da  warning
-    unsigned char *bufferAux;
+    const unsigned char *bufferAux;
     bufferAux = 0;
     memset(bufferAux,255,BLOCKSIZE);
-    if(SB.cantBloquesLibres>0){
         while(equal == true){
         bread(posBloqueMB,bufferMB);
-        cmp=memcmp(bufferMB,bufferAux,BLOCKSIZE);
+        memcpy(bufferMBAux, bufferMB,BLOCKSIZE);
+        cmp=memcmp(bufferMBAux,bufferAux,BLOCKSIZE);
         if(cmp!=0){
             equal=false;
         }
         posBloqueMB++;
         }
-        posBloqueMB=posBloqueMB-SB.posPrimerBloqueMB;
+        posBloqueMB = posBloqueMB-SB.posPrimerBloqueMB;
         for (int i = 0; i < BLOCKSIZE; i++)
         if(bufferMB[i] != 255){
             posbyte = i;
@@ -135,13 +161,9 @@ int reservar_bloque(){
         }
         nbloque = ((posBloqueMB - SB.posPrimerBloqueMB) * BLOCKSIZE + posbyte) * 8 + posbit;
         escribir_bit(nbloque, 1);
+        SB.cantBloquesLibres--;
+        bwrite(posSB, &SB);
         return nbloque;
-        
-    }
-    else{
-        //no hay bloques disponibles
-        return EXIT_FAILURE;
-    }
 }
 int liberar_bloque(unsigned int nbloque){
     unsigned char mascara = 128; // 10000000
@@ -155,7 +177,53 @@ int liberar_bloque(unsigned int nbloque){
     bufferMB[posbyte]&=~mascara;
     bwrite(nbloqueabs,bufferMB);
     SB.cantBloquesLibres++;
+    bwrite(posSB, &SB); //actualizamos el SB
     return nbloque;
 }
-
+int escribir_inodo(unsigned int ninodo, struct inodo inodo){
+    int result; //variable de gestión de errores
+    struct inodo inodos[BLOCKSIZE/INODOSIZE]; //buffer para los inodos
+    int posBloque = ninodo/INODOSIZE + SB.posPrimerBloqueAI; //posicion real del bloque
+    result = bread(posBloque, inodos);   //leemos el bloque que contiene el inodo
+    if (result == EXIT_FAILURE){ //es necesario???
+        return EXIT_FAILURE;
+    }
+    inodos[ninodo%BLOCKSIZE/INODOSIZE]=inodo; //escribimos el inodo en la posicion que le toca
+    return bwrite(posBloque, inodos); //volvemos a escribir el bloque en memoria
+}
+int leer_inodo(unsigned int ninodo, struct inodo *inodo){
+    int result; //variable de gestión de errores
+    struct inodo inodos[BLOCKSIZE/INODOSIZE]; //buffer para los inodos
+    struct inodo inodoLeido;
+    int posBloque = ninodo/INODOSIZE + SB.posPrimerBloqueAI; //posicion real del bloque
+    result = bread(posBloque, inodos);   //leemos el bloque que contiene el inodo
+    if (result == EXIT_FAILURE){ //es necesario???
+        return EXIT_FAILURE;
+    }
+    *inodo = inodos[ninodo%BLOCKSIZE/INODOSIZE]; //escribimos el inodo en la posicion que le toca
+    return 0; //volvemos a escribir el bloque en memoria
+}
+int reservar_inodo(unsigned char tipo, unsigned char permisos){
+    if(SB.cantInodosLibres == 0){
+        return EXIT_FAILURE;
+    }
+    struct inodo inodo;
+    int posInodoReservado = SB.posPrimerInodoLibre-SB.posPrimerBloqueAI; //posicion del inodo a reservar
+    SB.posPrimerInodoLibre++;
+    SB.cantInodosLibres--;
+    bwrite(posSB, &SB); //actualizamos SB
+    inodo.tipo = tipo;
+    inodo.permisos = permisos;
+    inodo.nlinks = 1;
+    inodo.tamEnBytesLog = inodo.numBloquesOcupados = 0;
+    inodo.atime = inodo.ctime = inodo.mtime = time(NULL);
+    for(int i = 0; i < 12; i++){
+        for(int j = 0; j < 3; j++){
+            inodo.punterosIndirectos[j] = 0;
+        }
+        inodo.punterosDirectos[i] = 0;
+    }
+    escribir_inodo(posInodoReservado, inodo);
+    return posInodoReservado;
+}
 
