@@ -73,10 +73,10 @@ int initAI(){
     int escribir_bit(unsigned int nbloque, unsigned int bit) {
         unsigned char mascara = 128; // 10000000
         unsigned char *bufferMB = malloc(BLOCKSIZE);
-        int posbyte = nbloque/8;
+        int posbyte = nbloque / 8;
         int posbit = nbloque % 8;
         int nbloqueabs = posbyte / BLOCKSIZE + SB.posPrimerBloqueMB;
-        bread(nbloqueabs,bufferMB);
+        bread(nbloqueabs, bufferMB);
         posbyte = posbyte % BLOCKSIZE;
         mascara >>= posbit; // desplazamiento de bits a la derecha
         if(bit == 0){
@@ -85,22 +85,24 @@ int initAI(){
         else{
             bufferMB[posbyte] |= mascara; 
         }
+        bwrite(nbloqueabs,bufferMB);
         free(bufferMB);
-        return bwrite(nbloqueabs,bufferMB);
+        return 0; //a ver control de exceptions con Adelaida DD
     }
 
 unsigned char leer_bit(unsigned int nbloque){
         unsigned char mascara = 128; // 10000000
-        unsigned char *bufferMB;
-        bufferMB = 0;
+        unsigned char *bufferMB = malloc(BLOCKSIZE);
         int posbyte = nbloque / 8;
         int posbit = nbloque % 8;
         int nbloqueabs = posbyte / BLOCKSIZE + SB.posPrimerBloqueMB;
-        bread(nbloqueabs,bufferMB);
+        bread(nbloqueabs, bufferMB);
         posbyte = posbyte % BLOCKSIZE;
         mascara >>= posbit;
-        bufferMB[posbyte] &= mascara; // p.e->posbit=3 --> resultado-> 000x0000
-        if(bufferMB[posbyte] == 0){ //si x=0
+        mascara &= bufferMB[posbyte]; // p.e->posbit=3 --> resultado-> 000x0000
+        mascara >>= (7-posbit);         // desplazamiento de bits a la derecha
+        free(bufferMB);
+        if(mascara == 0){ //si x=0
             return 0;
         }
         else{ // si x=1
@@ -150,7 +152,6 @@ int reservar_bloque(){
         }
         posBloqueMB++;
         }
-        posBloqueMB = posBloqueMB-SB.posPrimerBloqueMB;
         for (int i = 0; i < BLOCKSIZE; i++)
         if(bufferMB[i] != 255){
             posbyte = i;
@@ -172,17 +173,18 @@ int reservar_bloque(){
 }
 int liberar_bloque(unsigned int nbloque){
     unsigned char mascara = 128; // 10000000
-    unsigned char *bufferMB;
-    bufferMB = 0;
+    unsigned char *bufferMB = malloc(BLOCKSIZE);
     int posbyte = nbloque / 8;
     int posbit = nbloque % 8;
     int nbloqueabs = posbyte / BLOCKSIZE + SB.posPrimerBloqueMB;
     bread(nbloqueabs,bufferMB);
+    posbyte = posbyte % BLOCKSIZE;
     mascara>>=posbit;
-    bufferMB[posbyte]&=~mascara;
+    bufferMB[posbyte] &= ~mascara;
     bwrite(nbloqueabs,bufferMB);
     SB.cantBloquesLibres++;
     bwrite(posSB, &SB); //actualizamos el SB
+    free(bufferMB);
     return nbloque;
 }
 int escribir_inodo(unsigned int ninodo, struct inodo inodo){
@@ -213,7 +215,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
         return EXIT_FAILURE;
     }
     struct inodo inodo;
-    int posInodoReservado = SB.posPrimerInodoLibre-SB.posPrimerBloqueAI; //posicion del inodo a reservar
+    int posInodoReservado = SB.posPrimerInodoLibre + SB.posPrimerBloqueAI; //posicion del inodo a reservar
     SB.posPrimerInodoLibre++;
     SB.cantInodosLibres--;
     bwrite(posSB, &SB); //actualizamos SB
