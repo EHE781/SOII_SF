@@ -195,8 +195,9 @@ int escribir_inodo(unsigned int ninodo, struct inodo inodo){
     if (result == EXIT_FAILURE){ //es necesario???
         return EXIT_FAILURE;
     }
-    inodos[ninodo%BLOCKSIZE/INODOSIZE]=inodo; //escribimos el inodo en la posicion que le toca
-    return bwrite(posBloque, inodos); //volvemos a escribir el bloque en memoria
+    inodos[ninodo%(BLOCKSIZE/INODOSIZE)]=inodo; //escribimos el inodo en la posicion que le toca
+    bwrite(posBloque, inodos); //volvemos a escribir el bloque en memoria
+    return 0;
 }
 int leer_inodo(unsigned int ninodo, struct inodo *inodo){
     int result; //variable de gestión de errores
@@ -215,7 +216,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
         return EXIT_FAILURE;
     }
     struct inodo inodo;
-    int posInodoReservado = SB.posPrimerInodoLibre + SB.posPrimerBloqueAI; //posicion del inodo a reservar
+    int posInodoReservado = SB.posPrimerInodoLibre; //SB.posPrimerBloqueAI quitado, posicion del inodo a reservar
     SB.posPrimerInodoLibre++;
     SB.cantInodosLibres--;
     bwrite(posSB, &SB); //actualizamos SB
