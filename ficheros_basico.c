@@ -110,27 +110,6 @@ unsigned char leer_bit(unsigned int nbloque){
         }
 
 }
-/*
-unsigned char leer_bit(unsigned int bit){
-        unsigned char mascara = 128; // 10000000
-        unsigned char *bufferMB;
-        bufferMB = 0;
-        int nbloque = bit * 8/BLOCKSIZE; //determinamos el bloque en el que esta
-        int nbloqueabs = nbloque + SB.posPrimerBloqueMB;
-        int posbyte = nbloque / 8;
-        int posbit = nbloque % 8;
-        bread(nbloqueabs,bufferMB);
-        posbyte = posbyte % BLOCKSIZE;
-        mascara >>= posbit;
-        bufferMB[posbyte] &= mascara; // p.e->posbit=3 --> resultado-> 000x0000
-        if(bufferMB[posbyte] == 0){ //si x=0
-            return 0;
-        }
-        else{ // si x=1
-            return 1;
-        }
-
-}*/
 int reservar_bloque(){
     if(SB.cantBloquesLibres == 0){
         return EXIT_FAILURE;
@@ -192,7 +171,7 @@ int escribir_inodo(unsigned int ninodo, struct inodo inodo){
     struct inodo inodos[BLOCKSIZE/INODOSIZE]; //buffer para los inodos
     int posBloque = ninodo/INODOSIZE + SB.posPrimerBloqueAI; //posicion real del bloque
     result = bread(posBloque, inodos);   //leemos el bloque que contiene el inodo
-    if (result == EXIT_FAILURE){ //es necesario???
+    if (result == EXIT_FAILURE){ 
         return EXIT_FAILURE;
     }
     inodos[ninodo%(BLOCKSIZE/INODOSIZE)]=inodo; //escribimos el inodo en la posicion que le toca
@@ -205,7 +184,7 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo){
     struct inodo inodoLeido;
     int posBloque = ninodo/INODOSIZE + SB.posPrimerBloqueAI; //posicion real del bloque
     result = bread(posBloque, inodos);   //leemos el bloque que contiene el inodo
-    if (result == EXIT_FAILURE){ //es necesario???
+    if (result == EXIT_FAILURE){
         return EXIT_FAILURE;
     }
     *inodo = inodos[ninodo%BLOCKSIZE/INODOSIZE]; //escribimos el inodo en la posicion que le toca

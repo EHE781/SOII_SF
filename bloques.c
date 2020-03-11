@@ -2,7 +2,7 @@
 static int fd = 0; //file descriptor
 
 int bmount(const char *camino){
-    umask(000);
+    umask(000);//inicializar los permisos del fichero. 000 indica que se puede leer/escribir/ejecutar
     fd = open(camino, O_RDWR|O_CREAT, 0666);
 if(fd == -1){
     fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
@@ -33,7 +33,7 @@ int bwrite(unsigned int nbloque, const void *buf){
 int bread(unsigned int nbloque, void *buf){
     off_t pos = lseek(fd, nbloque * BLOCKSIZE, SEEK_SET);
     size_t rbytes = read(fd, buf, BLOCKSIZE);
-    lseek(fd, pos + rbytes, SEEK_SET); //DUDA=SI ESCRIBES MENOS DE UN BLOQUE, APUNTA AL SIGUIENTE O AL VACIO
+    lseek(fd, pos + rbytes, SEEK_SET); 
     if(rbytes == -1){
         fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
         return EXIT_FAILURE;
