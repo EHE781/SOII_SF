@@ -1,6 +1,6 @@
 #include "ficheros_basico.h"
 struct superbloque SB;
-
+/*DEVUELVE EL TAMAÑO DEL MAPA DE BITS*/
 int tamMB(unsigned int nbloques){
     int size = ((nbloques/8)/BLOCKSIZE);
     double byteSize = nbloques/8;
@@ -11,7 +11,7 @@ int tamMB(unsigned int nbloques){
     }
     return size;
 }
-
+/*DEVUELVE EL TAMAÑO DEL ARRAY DE INODOS*/
 int tamAI(unsigned int ninodos){
     int size = 0;
     if((size = ((ninodos * INODOSIZE) / BLOCKSIZE)) % 1 != 0){  //si se necesita mas espacio para los inodos
@@ -19,7 +19,7 @@ int tamAI(unsigned int ninodos){
     }
     return size;
 }
-
+/*INICIALIZA EL SUPERBLOQUE*/
 int initSB(unsigned int nbloques, unsigned int ninodos){
     void *buf = &SB; //asignamos el buffer a la estructura de SB
     SB.posPrimerBloqueMB = posSB + tamSB;
@@ -36,6 +36,7 @@ int initSB(unsigned int nbloques, unsigned int ninodos){
     SB.totInodos = ninodos;
     return bwrite(posSB, buf);
 }
+/*INICIALIZA EL MAPA DE BITS*/
 int initMB(){
     int setBloques = SB.cantBloquesLibres; //cuantos bloques de datos se ponen a 0
     int bloque = SB.posPrimerBloqueDatos; //primer bloque de datos en el cual escribir
@@ -51,6 +52,7 @@ int initMB(){
     }
     return result;
 }
+/*INICIALIZA EL ARRAY DE INODOS*/
 int initAI(){
     int contInodos = SB.posPrimerInodoLibre + 1; //conector de inodos incremental
     int result;
@@ -70,6 +72,8 @@ int initAI(){
     }
     return result;
 }
+/*ESCRIBE UN BIT PASADO POR PARÁMETRO EN LA POSICIÓN DEL BLOQUE
+PASADO POR PARÁMETRO EN EL MAPA DE BITS*/
     int escribir_bit(unsigned int nbloque, unsigned int bit) {
         unsigned char mascara = 128; // 10000000
         unsigned char *bufferMB = malloc(BLOCKSIZE);
@@ -87,7 +91,7 @@ int initAI(){
         }
         bwrite(nbloqueabs,bufferMB);
         free(bufferMB);
-        return 0; //a ver control de exceptions con Adelaida DD
+        return EXIT_SUCCESS;
     }
 
 unsigned char leer_bit(unsigned int nbloque){
@@ -103,34 +107,13 @@ unsigned char leer_bit(unsigned int nbloque){
         mascara >>= (7-posbit);         // desplazamiento de bits a la derecha
         free(bufferMB);
         if(mascara == 0){ //si x=0
-            return 0;
+            return EXIT_SUCCESS;
         }
         else{ // si x=1
             return 1;
         }
 
 }
-/*
-unsigned char leer_bit(unsigned int bit){
-        unsigned char mascara = 128; // 10000000
-        unsigned char *bufferMB;
-        bufferMB = 0;
-        int nbloque = bit * 8/BLOCKSIZE; //determinamos el bloque en el que esta
-        int nbloqueabs = nbloque + SB.posPrimerBloqueMB;
-        int posbyte = nbloque / 8;
-        int posbit = nbloque % 8;
-        bread(nbloqueabs,bufferMB);
-        posbyte = posbyte % BLOCKSIZE;
-        mascara >>= posbit;
-        bufferMB[posbyte] &= mascara; // p.e->posbit=3 --> resultado-> 000x0000
-        if(bufferMB[posbyte] == 0){ //si x=0
-            return 0;
-        }
-        else{ // si x=1
-            return 1;
-        }
-
-}*/
 int reservar_bloque(){
     if(SB.cantBloquesLibres == 0){
         return EXIT_FAILURE;
@@ -197,7 +180,7 @@ int escribir_inodo(unsigned int ninodo, struct inodo inodo){
     }
     inodos[ninodo%(BLOCKSIZE/INODOSIZE)]=inodo; //escribimos el inodo en la posicion que le toca
     bwrite(posBloque, inodos); //volvemos a escribir el bloque en memoria
-    return 0;
+    return EXIT_SUCCESS;
 }
 int leer_inodo(unsigned int ninodo, struct inodo *inodo){
     int result; //variable de gestión de errores
@@ -209,7 +192,7 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo){
         return EXIT_FAILURE;
     }
     *inodo = inodos[ninodo%BLOCKSIZE/INODOSIZE]; //escribimos el inodo en la posicion que le toca
-    return 0; //volvemos a escribir el bloque en memoria
+    return EXIT_SUCCESS; //volvemos a escribir el bloque en memoria
 }
 int reservar_inodo(unsigned char tipo, unsigned char permisos){
     if(SB.cantInodosLibres == 0){

@@ -90,5 +90,5 @@ printf("ID: %d \nATIME: %s \nMTIME: %s \nCTIME: %s\n",ninodo,atime,mtime,ctime);
 printf("nlinks: %i\n",inodo.nlinks);
 printf("tamaño en bytes lógicos: %i\n",inodo.tamEnBytesLog);
 printf("Número de bloques ocupados: %i\n",inodo.numBloquesOcupados);
-    return 0;
+    return EXIT_SUCCESS;
 }
