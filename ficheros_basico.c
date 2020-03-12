@@ -287,6 +287,7 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
                 if(nivel_punteros = nRangoBL){
                 //el bloque cuelga directamente del inodo
                 inodo.punterosIndirectos[nRangoBL-1] = ptr; // (imprimirlo para test)
+                fprintf("[traducir_bloque_inodo()→ inodo.punterosDirectos[%i] = %i (reservado BF 3139 para BL 8)]",nblogico,nblogico+SB.posPrim);
                 }   
                 else {   //el bloque cuelga de otro bloque de punteros
                 buffer[indice] = ptr;// (imprimirlo para test)
