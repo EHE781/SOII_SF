@@ -175,7 +175,7 @@ int escribir_inodo(unsigned int ninodo, struct inodo inodo){
     struct inodo inodos[BLOCKSIZE/INODOSIZE]; //buffer para los inodos
     int posBloque = ninodo/INODOSIZE + SB.posPrimerBloqueAI; //posicion real del bloque
     result = bread(posBloque, inodos);   //leemos el bloque que contiene el inodo
-    if (result == EXIT_FAILURE){ //es necesario???
+    if (result == EXIT_FAILURE){ 
         return EXIT_FAILURE;
     }
     inodos[ninodo%(BLOCKSIZE/INODOSIZE)]=inodo; //escribimos el inodo en la posicion que le toca
@@ -188,7 +188,7 @@ int leer_inodo(unsigned int ninodo, struct inodo *inodo){
     struct inodo inodoLeido;
     int posBloque = ninodo/INODOSIZE + SB.posPrimerBloqueAI; //posicion real del bloque
     result = bread(posBloque, inodos);   //leemos el bloque que contiene el inodo
-    if (result == EXIT_FAILURE){ //es necesario???
+    if (result == EXIT_FAILURE){
         return EXIT_FAILURE;
     }
     *inodo = inodos[ninodo%BLOCKSIZE/INODOSIZE]; //escribimos el inodo en la posicion que le toca
