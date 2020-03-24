@@ -1,5 +1,5 @@
 int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset ,unsigned int nbytes){
-    void *buf_bloque;
+    void *buf_bloque[BLOCKSIZE];
     if(inodo.permisos & 2==2){
         int primerBloqueLog=offset/BLOCKSIZE;
         int ultimoBloqueLog=(offset+nbytes-1)/BLOCKSIZE;
