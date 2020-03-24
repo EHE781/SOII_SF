@@ -5,6 +5,9 @@ int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset
         int ultimoBloqueLog=(offset+nbytes-1)/BLOCKSIZE;
         int desp1=offset%BLOCKSIZE;
         int bloqueFisico=traducir_bloque_inodo(ninodo,primerBloqueLog,1);
+        bread(bloqueFisico,buf_bloque);
+        memcpy(buf_bloque+desp1,buf_original,BLOCKSIZE-desp1);
+        bwrite()
     }
     else{
         //el inodo no tiene permisos de escritura
