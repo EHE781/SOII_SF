@@ -272,7 +272,7 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
       int buffer[NPUNTEROS];  
    leer_inodo (ninodo, &inodo);
    ptr = ptr_ant = salvar_inodo = 0;
-   nRangoBL = obtener_nRangoBL(inodo, nblogico, &ptr); //0:D, 1:I0, 2:I1, 3:I2
+   nRangoBL = obtener_nrangoBL(inodo, nblogico, &ptr); //0:D, 1:I0, 2:I1, 3:I2
    nivel_punteros = nRangoBL; //el nivel_punteros +alto es el que cuelga del inodo
    while (nivel_punteros > 0){ //iterar para cada nivel de indirectos
         if(ptr == 0){ //no cuelgan bloques de punteros
