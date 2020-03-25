@@ -272,7 +272,7 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
       int buffer[NPUNTEROS];  
    leer_inodo (ninodo, &inodo);
    ptr = ptr_ant = salvar_inodo = 0;
-   nRangoBL = obtener_nRangoBL(inodo, nblogico, &ptr); //0:D, 1:I0, 2:I1, 3:I2
+   nRangoBL = obtener_nrangoBL(inodo, nblogico, &ptr); //0:D, 1:I0, 2:I1, 3:I2
    nivel_punteros = nRangoBL; //el nivel_punteros +alto es el que cuelga del inodo
    while (nivel_punteros > 0){ //iterar para cada nivel de indirectos
         if(ptr == 0){ //no cuelgan bloques de punteros
@@ -287,7 +287,6 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
                 if(nivel_punteros = nRangoBL){
                 //el bloque cuelga directamente del inodo
                 inodo.punterosIndirectos[nRangoBL-1] = ptr; // (imprimirlo para test)
-                fprintf("[traducir_bloque_inodo()→ inodo.punterosDirectos[%i] = %i (reservado BF %i para BL %i)]",(nRangoBL-1),nblogico+SB.posPrimerBloqueMB,nblogico+SB.posPrimerBloqueMB,nblogico);
                 }   
                 else {   //el bloque cuelga de otro bloque de punteros
                 buffer[indice] = ptr;// (imprimirlo para test)
@@ -323,6 +322,23 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
     if (salvar_inodo == 1){
       escribir_inodo(ninodo, inodo);  //sólo si lo hemos actualizado
     }
+    /*
+    //CHECKEADOR START (BORRABLE)
+    if(nRangoBL == 0){
+    printf("[traducir_bloque_inodo()→ inodo.punterosDirectos[%i] = %i (reservado BF %i para BL %i)]\n",
+    nblogico,nblogico+SB.posPrimerBloqueDatos,nblogico+SB.posPrimerBloqueMB,nblogico);
+    }else if(nRangoBL < 2 ){
+        printf("[traducir_bloque_inodo()→ inodo.punteros_nivel1[%i] = %i (reservado BF %i para BL %i)]\n",
+    indice,nblogico+SB.posPrimerBloqueDatos,nblogico+SB.posPrimerBloqueMB,nblogico);
+    }else if(nRangoBL < 3){
+        printf("[traducir_bloque_inodo()→ inodo.punteros_nivel2[%i] = %i (reservado BF %i para BL %i)]\n",
+    indice,nblogico+SB.posPrimerBloqueDatos,nblogico+SB.posPrimerBloqueMB,nblogico);
+    }else {
+        printf("[traducir_bloque_inodo()→ inodo.punteros_nivel3[%i] = %i (reservado BF %i para BL %i)]\n",
+    indice,nblogico+SB.posPrimerBloqueDatos,nblogico+SB.posPrimerBloqueMB,nblogico);
+    }
+    //CHECKEADOR END (BORRABLE)
+    */
    return ptr; //nbfisico
 }
 
