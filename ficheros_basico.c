@@ -219,23 +219,23 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
 }
 int obtener_nrangoBL(struct inodo inodo,unsigned int nblogico, unsigned int *ptr){
     if(nblogico < DIRECTOS){
-        ptr = inodo.punterosDirectos[nblogico];
+        *ptr = inodo.punterosDirectos[nblogico];
         return 0;
     }
     else if(nblogico < INDIRECTOS0){
-        ptr = inodo.punterosIndirectos[0];
+        *ptr = inodo.punterosIndirectos[0];
         return 1;
     }
     else if(nblogico < INDIRECTOS1){
-        ptr = inodo.punterosIndirectos[1];
+        *ptr = inodo.punterosIndirectos[1];
         return 2;
     }
     else if(nblogico < INDIRECTOS2){
-        ptr = inodo.punterosIndirectos[2];
+        *ptr = inodo.punterosIndirectos[2];
         return 3;
     }
     else{
-        ptr = 0;    
+        *ptr = 0;    
         return EXIT_FAILURE;
     }
 }
