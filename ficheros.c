@@ -37,3 +37,36 @@ int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset
         return EXIT_FAILURE;
     }
 }
+int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsigned int nbytes){
+    struct inodo inodo;
+    char buf_bloque[BLOCKSIZE];
+    if (inodo.permisos & 4 == 4){
+        int bloque=0;
+        int primerBLogico = offset/BLOCKSIZE;
+        int ultimoBLogico = (offset + nbytes - 1) / BLOCKSIZE;
+        int desp1 = offset % BLOCKSIZE;
+        int desp2 = ultimoBLogico % BLOCKSIZE;
+        for (int i = primerBLogico; i != ultimoBLogico + 1; i++) { // != ultimoBLogico + 1(este +1 es para que me lea tmb el ultimo bloque)
+            int BFisico = traducir_bloque_inodo(ninodo,i,0);
+            bread(BFisico,buf_bloque);
+            if(i == primerBLogico){ //caso del primer bloque por si acaso no hay que leerlo entero
+                memcpy(&buf_original[bloque],&buf_bloque[desp1],BLOCKSIZE - desp1);
+                bloque = bloque + (BLOCKSIZE - desp1);
+            }
+            else if (i == ultimoBLogico){ //caso del pultimo bloque por si acaso no hay que leerlo entero
+                memcpy(&buf_original[bloque],buf_bloque,desp2);
+                bloque = bloque + desp2;
+            }
+            else{
+                memcpy(&buf_original[bloque],buf_bloque,BLOCKSIZE);
+                bloque = bloque + BLOCKSIZE;
+            }
+        }
+        return bloque;
+       
+    }else
+    {   //no tienes permisos de lectura
+        return EXIT_FAILURE;
+    }
+    
+}
