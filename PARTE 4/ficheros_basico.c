@@ -322,6 +322,23 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
     if (salvar_inodo == 1){
       escribir_inodo(ninodo, inodo);  //sólo si lo hemos actualizado
     }
+    /*
+    //CHECKEADOR START (BORRABLE)
+    if(nRangoBL == 0){
+    printf("[traducir_bloque_inodo()→ inodo.punterosDirectos[%i] = %i (reservado BF %i para BL %i)]\n",
+    nblogico,nblogico+SB.posPrimerBloqueDatos,nblogico+SB.posPrimerBloqueMB,nblogico);
+    }else if(nRangoBL < 2 ){
+        printf("[traducir_bloque_inodo()→ inodo.punteros_nivel1[%i] = %i (reservado BF %i para BL %i)]\n",
+    indice,nblogico+SB.posPrimerBloqueDatos,nblogico+SB.posPrimerBloqueMB,nblogico);
+    }else if(nRangoBL < 3){
+        printf("[traducir_bloque_inodo()→ inodo.punteros_nivel2[%i] = %i (reservado BF %i para BL %i)]\n",
+    indice,nblogico+SB.posPrimerBloqueDatos,nblogico+SB.posPrimerBloqueMB,nblogico);
+    }else {
+        printf("[traducir_bloque_inodo()→ inodo.punteros_nivel3[%i] = %i (reservado BF %i para BL %i)]\n",
+    indice,nblogico+SB.posPrimerBloqueDatos,nblogico+SB.posPrimerBloqueMB,nblogico);
+    }
+    //CHECKEADOR END (BORRABLE)
+    */
    return ptr; //nbfisico
 }
 
