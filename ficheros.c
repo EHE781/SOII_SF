@@ -2,6 +2,7 @@
 int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset ,unsigned int nbytes){
     struct inodo inodo;
     char buf_bloque[BLOCKSIZE];
+    leer_inodo(ninodo,&inodo);
     if(inodo.permisos & 2 == 2){
         int primerBLogico = offset/BLOCKSIZE;
         int ultimoBLogico = (offset + nbytes - 1) / BLOCKSIZE;
@@ -39,9 +40,10 @@ int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset
 }
 int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsigned int nbytes){
     struct inodo inodo;
+    leer_inodo(ninodo, &inodo);
     char buf_bloque[BLOCKSIZE];
     if (inodo.permisos & 4 == 4){
-        int bloque=0;
+        int bytesLeidos=0;
         int primerBLogico = offset/BLOCKSIZE;
         int ultimoBLogico = (offset + nbytes - 1) / BLOCKSIZE;
         int desp1 = offset % BLOCKSIZE;
@@ -50,19 +52,20 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
             int BFisico = traducir_bloque_inodo(ninodo,i,0);
             bread(BFisico,buf_bloque);
             if(i == primerBLogico){ //caso del primer bloque por si acaso no hay que leerlo entero
-                memcpy(&buf_original[bloque],&buf_bloque[desp1],BLOCKSIZE - desp1);
-                bloque = bloque + (BLOCKSIZE - desp1);
+                memcpy(&buf_original[bytesLeidos],&buf_bloque[desp1],BLOCKSIZE - desp1);
+                bytesLeidos = bytesLeidos + (BLOCKSIZE - desp1);
             }
             else if (i == ultimoBLogico){ //caso del pultimo bloque por si acaso no hay que leerlo entero
-                memcpy(&buf_original[bloque],buf_bloque,desp2);
-                bloque = bloque + desp2;
+                memcpy(&buf_original[bytesLeidos],buf_bloque,desp2);
+                bytesLeidos = bytesLeidos + desp2;
             }
             else{
-                memcpy(&buf_original[bloque],buf_bloque,BLOCKSIZE);
-                bloque = bloque + BLOCKSIZE;
+                memcpy(&buf_original[bytesLeidos],buf_bloque,BLOCKSIZE);
+                bytesLeidos = bytesLeidos + BLOCKSIZE;
             }
         }
-        return bloque;
+
+        return bytesLeidos;
        
     }else
     {   //no tienes permisos de lectura
