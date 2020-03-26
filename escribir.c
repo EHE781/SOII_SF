@@ -14,15 +14,13 @@ int main(int argc, char **argv){
         fprintf(stderr,"La sintaxi correcta es \'-t \"texto\"\' o bien \'directorio\'\n");
         return EXIT_FAILURE;
     }
-    if(argv[1] == "-t"){
+    buf = argv[1];
+    if(argv[1] == buf){
         if(argv[2] == NULL){
             fprintf(stderr,"La sintaxi correcta es \'-t \"texto\"\' o bien \'directorio\'\n");
             return EXIT_FAILURE;
         }
         buf = argv[2];
-    }else{
-        buf = argv[1];
-        printf("jj");
     }
     return EXIT_SUCCESS;
 }
