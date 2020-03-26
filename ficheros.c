@@ -8,7 +8,9 @@ int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset
         int desp1 = offset % BLOCKSIZE;
         int desp2 = ultimoBLogico % BLOCKSIZE;
         int BFisico = traducir_bloque_inodo(ninodo,primerBLogico,1);
-        bread(BFisico, buf_bloque);
+        if(desp1 !=0){
+            bread(BFisico, buf_bloque);
+        }
         memcpy(buf_bloque + desp1,buf_original,BLOCKSIZE - desp1);
         int total=bwrite(BFisico,buf_bloque);
         for(int i = primerBLogico + 1;i != ultimoBLogico;i++){
@@ -16,7 +18,9 @@ int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset
             buf_original + (BLOCKSIZE - desp1) + (i - primerBLogico - 1) * BLOCKSIZE);
         }
         int ultimoBFisico = traducir_bloque_inodo(ninodo,ultimoBLogico,1);
-        bread(ultimoBFisico,buf_bloque);
+        if(desp2!=BLOCKSIZE){
+            bread(ultimoBFisico,buf_bloque);
+        }
         memcpy(buf_bloque,buf_original + (nbytes-desp2 - 1),desp2 + 1);
         total = total + bwrite(ultimoBFisico, buf_bloque);
         leer_inodo(ninodo,&inodo);
