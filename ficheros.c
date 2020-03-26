@@ -63,8 +63,10 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
                 memcpy(&buf_original[bytesLeidos],buf_bloque,BLOCKSIZE);
                 bytesLeidos = bytesLeidos + BLOCKSIZE;
             }
-        }
 
+        }
+        inodo.atime = time(NULL);
+        escribir_inodo(ninodo, inodo);
         return bytesLeidos;
        
     }else
