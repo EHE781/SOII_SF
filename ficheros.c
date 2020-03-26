@@ -56,8 +56,8 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
                 bytesLeidos = bytesLeidos + (BLOCKSIZE - desp1);
             }
             else if (i == ultimoBLogico){ //caso del pultimo bloque por si acaso no hay que leerlo entero
-                memcpy(&buf_original[bytesLeidos],buf_bloque,desp2);
-                bytesLeidos = bytesLeidos + desp2;
+                memcpy(&buf_original[bytesLeidos],buf_bloque,desp2+1);
+                bytesLeidos = bytesLeidos + desp2+1;
             }
             else{
                 memcpy(&buf_original[bytesLeidos],buf_bloque,BLOCKSIZE);
