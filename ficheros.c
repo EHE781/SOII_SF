@@ -73,3 +73,21 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
     }
     
 }
+
+int mi_stat_f(unsigned int ninodo, struct STAT *p_stat){
+
+    struct inodo *inodo;
+
+    leer_inodo(ninodo,inodo);
+
+    p_stat->tipo = p_stat->tipo; 
+    p_stat->permisos = inodo->permisos;
+    p_stat->nlinks = inodo->nlinks; 
+    p_stat->tamEnBytesLog = inodo->tamEnBytesLog;
+    p_stat->atime = inodo->atime;
+    p_stat->ctime = inodo->ctime;
+    p_stat->mtime = inodo->mtime;
+    p_stat->numBloquesOcupados = inodo->numBloquesOcupados;
+
+    return EXIT_SUCCESS;
+}
