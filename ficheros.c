@@ -8,7 +8,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset
         int desp1 = offset % BLOCKSIZE;
         int desp2 = ultimoBLogico % BLOCKSIZE;
         int BFisico = traducir_bloque_inodo(ninodo,primerBLogico,1);
-        if(desp1 !=0){
+        if(desp1 != 0){
             bread(BFisico, buf_bloque);
         }
         memcpy(buf_bloque + desp1,buf_original,BLOCKSIZE - desp1);
