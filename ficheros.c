@@ -93,3 +93,11 @@ int mi_stat_f(unsigned int ninodo, struct STAT *p_stat){
 
     return EXIT_SUCCESS;
 }
+int mi_chmod_f(unsigned int ninodo, unsigned char permisos){
+    struct inodo inodo;
+    leer_inodo(ninodo, &inodo);
+    inodo.permisos = permisos;
+    inodo.ctime = time(NULL);
+    escribir_inodo(ninodo, inodo);
+    return EXIT_SUCCESS;
+}
