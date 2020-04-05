@@ -54,6 +54,7 @@ int initMB(){
 }
 /*INICIALIZA EL ARRAY DE INODOS*/
 int initAI(){
+    bread(posSB, &SB);
     int contInodos = SB.posPrimerInodoLibre + 1; //conector de inodos incremental
     int result;
     for ( int i = SB.posPrimerBloqueAI; i <= SB.posUltimoBloqueAI; i++){
@@ -75,6 +76,7 @@ int initAI(){
 /*ESCRIBE UN BIT PASADO POR PARÁMETRO EN LA POSICIÓN DEL BLOQUE
 PASADO POR PARÁMETRO EN EL MAPA DE BITS*/
     int escribir_bit(unsigned int nbloque, unsigned int bit) {
+        bread(posSB, &SB);
         unsigned char mascara = 128; // 10000000
         unsigned char *bufferMB = malloc(BLOCKSIZE);
         int posbyte = nbloque / 8;
@@ -95,6 +97,7 @@ PASADO POR PARÁMETRO EN EL MAPA DE BITS*/
     }
 
 unsigned char leer_bit(unsigned int nbloque){
+        bread(posSB, &SB);
         unsigned char mascara = 128; // 10000000
         unsigned char *bufferMB = malloc(BLOCKSIZE);
         int posbyte = nbloque / 8;
@@ -115,6 +118,7 @@ unsigned char leer_bit(unsigned int nbloque){
 
 }
 int reservar_bloque(){
+    bread(posSB, &SB);
     if(SB.cantBloquesLibres == 0){
         return EXIT_FAILURE;
     }
@@ -155,6 +159,7 @@ int reservar_bloque(){
         return nbloque;
 }
 int liberar_bloque(unsigned int nbloque){
+    bread(posSB, &SB);
     unsigned char mascara = 128; // 10000000
     unsigned char *bufferMB = malloc(BLOCKSIZE);
     int posbyte = nbloque / 8;
@@ -171,9 +176,10 @@ int liberar_bloque(unsigned int nbloque){
     return nbloque;
 }
 int escribir_inodo(unsigned int ninodo, struct inodo inodo){
+    bread(posSB, &SB);
     int result; //variable de gestión de errores
     struct inodo inodos[BLOCKSIZE/INODOSIZE]; //buffer para los inodos
-    int posBloque = ninodo/INODOSIZE + SB.posPrimerBloqueAI; //posicion real del bloque
+    int posBloque = ninodo/(BLOCKSIZE/INODOSIZE) + SB.posPrimerBloqueAI; //posicion real del bloque
     result = bread(posBloque, inodos);   //leemos el bloque que contiene el inodo
     if (result == EXIT_FAILURE){ 
         return EXIT_FAILURE;
@@ -183,18 +189,21 @@ int escribir_inodo(unsigned int ninodo, struct inodo inodo){
     return EXIT_SUCCESS;
 }
 int leer_inodo(unsigned int ninodo, struct inodo *inodo){
+    bread(posSB, &SB);
     int result; //variable de gestión de errores
     struct inodo inodos[BLOCKSIZE/INODOSIZE]; //buffer para los inodos
     struct inodo inodoLeido;
-    int posBloque = ninodo/INODOSIZE + SB.posPrimerBloqueAI; //posicion real del bloque
+    int posBloque = ninodo/(BLOCKSIZE/INODOSIZE) + SB.posPrimerBloqueAI; //posicion real del bloque
     result = bread(posBloque, inodos);   //leemos el bloque que contiene el inodo
     if (result == EXIT_FAILURE){
         return EXIT_FAILURE;
     }
-    *inodo = inodos[ninodo%BLOCKSIZE/INODOSIZE]; //escribimos el inodo en la posicion que le toca
+    inodoLeido = inodos[ninodo%(BLOCKSIZE/INODOSIZE)];
+    memcpy(inodo, &inodoLeido, INODOSIZE);
     return EXIT_SUCCESS; //volvemos a escribir el bloque en memoria
 }
 int reservar_inodo(unsigned char tipo, unsigned char permisos){
+    bread(posSB, &SB);
     if(SB.cantInodosLibres == 0){
         return EXIT_FAILURE;
     }
@@ -218,6 +227,7 @@ int reservar_inodo(unsigned char tipo, unsigned char permisos){
     return posInodoReservado;
 }
 int obtener_nrangoBL(struct inodo inodo,unsigned int nblogico, unsigned int *ptr){
+    bread(posSB, &SB);
     if(nblogico < DIRECTOS){
         *ptr = inodo.punterosDirectos[nblogico];
         return 0;
@@ -267,14 +277,15 @@ int obtener_indice(int nblogico,int nivel_punteros){
     }
 }
 int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reservar){
-      struct inodo inodo;
-      int ptr, ptr_ant, salvar_inodo, nRangoBL, nivel_punteros, indice;
-      int buffer[NPUNTEROS];  
-   leer_inodo (ninodo, &inodo);
-   ptr = ptr_ant = salvar_inodo = 0;
-   nRangoBL = obtener_nrangoBL(inodo, nblogico, &ptr); //0:D, 1:I0, 2:I1, 3:I2
-   nivel_punteros = nRangoBL; //el nivel_punteros +alto es el que cuelga del inodo
-   while (nivel_punteros > 0){ //iterar para cada nivel de indirectos
+    bread(posSB, &SB);
+    struct inodo inodo;
+    int ptr, ptr_ant, salvar_inodo, nRangoBL, nivel_punteros, indice;
+    int buffer[NPUNTEROS];  
+    leer_inodo (ninodo, &inodo);
+    ptr = ptr_ant = salvar_inodo = 0;
+    nRangoBL = obtener_nrangoBL(inodo, nblogico, &ptr); //0:D, 1:I0, 2:I1, 3:I2
+    nivel_punteros = nRangoBL; //el nivel_punteros +alto es el que cuelga del inodo
+    while (nivel_punteros > 0){ //iterar para cada nivel de indirectos
         if(ptr == 0){ //no cuelgan bloques de punteros
             if(reservar == 0 ){
                 return EXIT_FAILURE;//error lectura bloque inexistente
@@ -284,7 +295,7 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
                 ptr = reservar_bloque(); //de punteros          
                 inodo.numBloquesOcupados++;
                 inodo.ctime = time(NULL); //fecha actual
-                if(nivel_punteros = nRangoBL){
+                if(nivel_punteros == nRangoBL){
                 //el bloque cuelga directamente del inodo
                 inodo.punterosIndirectos[nRangoBL-1] = ptr; // (imprimirlo para test)
                 }   
@@ -320,7 +331,7 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
       }
     }
     if (salvar_inodo == 1){
-      escribir_inodo(ninodo, inodo);  //sólo si lo hemos actualizado
+        escribir_inodo(ninodo, inodo);  //sólo si lo hemos actualizado
     }
     /*
     //CHECKEADOR START (BORRABLE)

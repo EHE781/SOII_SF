@@ -45,6 +45,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset
         }
         memcpy(buf_bloque,buf_original + (nbytes-desp2 - 1),desp2 + 1);
         total = total + bwrite(ultimoBFisico, buf_bloque);*/
+        leer_inodo(ninodo, &inodo);//volvemos a leer el inodo, se han reservado bloques
         if(inodo.tamEnBytesLog < total){//modifica EOF fichero
             inodo.tamEnBytesLog = total; //Si lo escrito ocupa más que lo que ya habia
             inodo.ctime = time(NULL);// Actualizamos ctime, hemos modificado el inodo
@@ -64,6 +65,13 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
     unsigned char *buf_bloque[BLOCKSIZE];
     if ((inodo.permisos & 4) == 4){
         int bytesLeidos = 0;
+        if(offset >= inodo.tamEnBytesLog){
+            bytesLeidos = 0;
+            return bytesLeidos;
+        }
+        if((offset + nbytes) >= inodo.tamEnBytesLog){
+            nbytes = inodo.tamEnBytesLog - offset;
+        }
         int primerBLogico = offset/BLOCKSIZE;
         int ultimoBLogico = (offset + nbytes - 1) / BLOCKSIZE;
         int desp1 = offset % BLOCKSIZE;
@@ -71,7 +79,11 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
         int BFisico = traducir_bloque_inodo(ninodo, primerBLogico, 0);
         if(primerBLogico == ultimoBLogico){
             bytesLeidos += bread(BFisico, buf_bloque);
-            memcpy(buf_original, buf_bloque + desp1, desp2 + 1 - desp1);
+            if(desp2 == 0){//caso en que se tenga que leer el ultimo bloque de una secuencia
+                memcpy(buf_original, buf_bloque + desp1, BLOCKSIZE - desp1);
+            }else{
+                memcpy(buf_original, buf_bloque + desp1, desp2 + 1 - desp1);
+            }
         }
         else{
             //posible falta de deteccion de bloques vacíos error
@@ -123,19 +135,19 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
 
 int mi_stat_f(unsigned int ninodo, struct STAT *p_stat){
 
-    struct inodo *inodo;
+    struct inodo inodo;
 
-    leer_inodo(ninodo,inodo);
+    leer_inodo(ninodo,&inodo);
 
-    p_stat->tipo = p_stat->tipo; 
-    p_stat->permisos = inodo->permisos;
-    p_stat->nlinks = inodo->nlinks; 
-    p_stat->tamEnBytesLog = inodo->tamEnBytesLog;
-    p_stat->atime = inodo->atime;
-    p_stat->ctime = inodo->ctime;
-    p_stat->mtime = inodo->mtime;
-    p_stat->numBloquesOcupados = inodo->numBloquesOcupados;
-
+    p_stat->tipo = inodo.tipo; 
+    p_stat->permisos = inodo.permisos;
+    p_stat->nlinks = inodo.nlinks; 
+    p_stat->tamEnBytesLog = inodo.tamEnBytesLog;
+    p_stat->atime = inodo.atime;
+    p_stat->ctime = inodo.ctime;
+    p_stat->mtime = inodo.mtime;
+    p_stat->numBloquesOcupados = inodo.numBloquesOcupados;
+    
     return EXIT_SUCCESS;
 }
 int mi_chmod_f(unsigned int ninodo, unsigned char permisos){

@@ -15,8 +15,9 @@ int main(int argc, char **argv){
     unsigned int length;
     length = strlen(argv[2]);
     char *buf = malloc(length);
-    int diferentes_inodos,nBytes,nbytes,inodos;
+    int diferentes_inodos, inodos, nbytes, nBytes = 0;
     int offset[4] = {9000, 209000, 30725000, 409605000};
+    struct STAT p_stat;
     if(argv[1] == NULL || argv[2] == NULL || argv[2] == NULL || argv[3] == NULL){
         fprintf(stderr,"La sintaxi correcta es: escribir <nombre_dispositivo> <\"$(cat fichero)\"> <diferentes_inodos>\n");
         return EXIT_FAILURE;
@@ -25,26 +26,26 @@ int main(int argc, char **argv){
     inodos = atoi(argv[3]);
     bmount(dir);
     bread(posSB, &SB);
-    if(inodos == 0){
-    ninodo = reservar_inodo('f', 6);
-    for(int i = 0; i < 4; i++){
-        printf("El ninodo es: %i\n", ninodo);
-        strcpy(buf, argv[2]);
-        nBytes += mi_write_f(ninodo, buf, offset[i], length);
-        memset(buf, 0, length);
-        nbytes += mi_read_f(ninodo, buf, offset[i], length);
-        write(1, buf, length);
+    if(inodos == 0){ // si la opción de diferentes inodos es 0
+      ninodo = reservar_inodo('f', 6); //reservamos inodo r/w
+      strcpy(buf, argv[2]); //copiamos el texto pasado por parámetro a un buffer
+      for(int i = 0; i < 4; i++){ //para cada offset el mismo inodo
+        printf("El ninodo es: %i\n", ninodo); //imprimimos el numero de inodo
+        nBytes += mi_write_f(ninodo, buf, offset[i], length);//sumamos en una variable los bytes escritos
       }
+      mi_stat_f(ninodo, &p_stat);
+      fprintf(stderr, "\nEl tamaño en bytes lógicos del inodo escrito es: %i, y los bloques ocupados: %i\n",
+      p_stat.tamEnBytesLog, p_stat.numBloquesOcupados);
     }
     else if(inodos == 1){
+      strcpy(buf, argv[2]);
       for(int i = 0; i < 4; i++){
         ninodo = reservar_inodo('f', 6);
         printf("El ninodo es: %i\n", ninodo);
-        strcpy(buf, argv[2]);
         nBytes += mi_write_f(ninodo, buf, offset[i], length);
-        memset(buf, 0, length);
-        nbytes += mi_read_f(ninodo, buf, offset[i], length);
-        write(1, buf, length);
+        mi_stat_f(ninodo, &p_stat);
+        fprintf(stderr, "\nEl tamaño en bytes lógicos del inodo escrito es: %i, y los bloques ocupados: %i\n",
+        p_stat.tamEnBytesLog, p_stat.numBloquesOcupados);
       }
     }
     else{
