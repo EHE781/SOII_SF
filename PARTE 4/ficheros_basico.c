@@ -178,7 +178,7 @@ int escribir_inodo(unsigned int ninodo, struct inodo inodo){
     if (result == EXIT_FAILURE){ 
         return EXIT_FAILURE;
     }
-    inodos[ninodo%(BLOCKSIZE/INODOSIZE)]=inodo; //escribimos el inodo en la posicion que le toca
+    inodos[ninodo%(BLOCKSIZE/INODOSIZE)] = inodo; //escribimos el inodo en la posicion que le toca
     bwrite(posBloque, inodos); //volvemos a escribir el bloque en memoria
     return EXIT_SUCCESS;
 }
@@ -284,7 +284,7 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
                 ptr = reservar_bloque(); //de punteros          
                 inodo.numBloquesOcupados++;
                 inodo.ctime = time(NULL); //fecha actual
-                if(nivel_punteros = nRangoBL){
+                if(nivel_punteros == nRangoBL){
                 //el bloque cuelga directamente del inodo
                 inodo.punterosIndirectos[nRangoBL-1] = ptr; // (imprimirlo para test)
                 }   
