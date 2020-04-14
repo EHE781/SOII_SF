@@ -416,15 +416,16 @@ int liberar_inodo(unsigned int ninodo){
     struct superbloque SB;
     struct inodo inodo;
     leer_inodo(ninodo,&inodo);
-    inodo.numBloquesOcupados = inodo.numBloquesOcupados - liberar_bloques_inodo(0,&inodo);
+    inodo.numBloquesOcupados -= liberar_bloques_inodo(0, &inodo);
     inodo.tipo = 'l';
     inodo.tamEnBytesLog = 0;
-    bread(posSB,&SB);
+    bread(posSB, &SB);
     SB.cantInodosLibres++;
-    SB.posPrimerInodoLibre = traducir_bloque_inodo(ninodo,0,0);
-    escribir_inodo(ninodo,inodo);//escribir el inodo
-    bwrite(posSB,&SB);//escribir superbloque
-    return ninodo;//devolver el número del inodo liberado
+    inodo.punterosDirectos[0] = SB.posPrimerInodoLibre; //hacemos que apunte al primer inodo libre
+    SB.posPrimerInodoLibre = ninodo; //y el primer libre ahora es el inodo del parámetro
+    escribir_inodo(ninodo,inodo); //escribir el inodo
+    bwrite(posSB,&SB); //actualizamos superbloque
+    return ninodo; //devolver el número del inodo liberado
 }
 
 
