@@ -1,4 +1,4 @@
-#include "ficheros.c"
+#include "ficheros.h"
 
 int main(int argc,char **argv){
     const char *dir;
@@ -6,7 +6,7 @@ int main(int argc,char **argv){
     int permisos = atoi(argv[3]); 
     dir = argv[1];
     if(argv[1] == NULL || argv[2] == NULL || argv[3] == NULL){
-        fprintf(stderr, "Sintaxis: permitir <nombre_dispositivo> <ninodo> <permisos>");
+        fprintf(stderr, "\nSintaxis: permitir <nombre_dispositivo> <ninodo> <permisos>\n");
         return EXIT_FAILURE;
     }
     else{

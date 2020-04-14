@@ -2,14 +2,14 @@
 
 int main(int argc, char **argv){
     const char *dir;
+    int ninodo = atoi(argv[2]);
+    struct inodo inodo; 
+    dir = argv[1];
     int nbytes = 1500;
     const void *buf_texto[nbytes];
     int offset = 0;;
-    int ninodo = atoi(argv[2]);
     int total = 0;
     int check = 1;
-    struct inodo inodo; 
-    dir = argv[1];
     bool EndOfFile = false;
     if(argv[1] == NULL || argv[2] == NULL){
         fprintf(stderr, "La sintaxi correcta es <camino a SF> <ninodo>\n");
