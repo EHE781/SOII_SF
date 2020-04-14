@@ -92,36 +92,14 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
             memcpy (buf_original, buf_bloque + desp1, BLOCKSIZE - desp1);
             for(int i = primerBLogico + 1; i != ultimoBLogico; i ++){
                 BFisico = traducir_bloque_inodo(ninodo, i, 0);
-                if(BFisico != -1){
                     bytesLeidos += bread(BFisico, buf_bloque);
                     memcpy(buf_original, buf_bloque, BLOCKSIZE);
-                }else{
-                    bytesLeidos += 1; // bytes bloque vacío?!?
-                }
             }
             desp2 = desp2 % BLOCKSIZE;
             BFisico = traducir_bloque_inodo(ninodo, ultimoBLogico, 0);
             bytesLeidos += bread(BFisico, buf_bloque);
             memcpy (buf_original, buf_bloque, desp2 + 1);
         }
-        /*ANTIGUO CODIGO borrable? nose
-        for (int i = primerBLogico; i != ultimoBLogico + 1; i++) { // != ultimoBLogico + 1(este +1 es para que me lea tmb el ultimo bloque)
-            int BFisico = traducir_bloque_inodo(ninodo,i,0);
-            bread(BFisico,buf_bloque);
-            if(i == primerBLogico){ //caso del primer bloque por si acaso no hay que leerlo entero
-                memcpy(&buf_original[bytesLeidos],&buf_bloque[desp1],BLOCKSIZE - desp1);
-                bytesLeidos = bytesLeidos + (BLOCKSIZE - desp1);
-            }
-            else if (i == ultimoBLogico){ //caso del pultimo bloque por si acaso no hay que leerlo entero
-                memcpy(&buf_original[bytesLeidos],buf_bloque,desp2+1);
-                bytesLeidos = bytesLeidos + desp2+1;
-            }
-            else{
-                memcpy(&buf_original[bytesLeidos],buf_bloque,BLOCKSIZE);
-                bytesLeidos = bytesLeidos + BLOCKSIZE;
-            }
-
-        }*/
         inodo.atime = time(NULL);
         escribir_inodo(ninodo, inodo);
         return bytesLeidos;
