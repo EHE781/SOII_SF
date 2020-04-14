@@ -16,7 +16,7 @@ int main(int argc, char **argv){
     length = strlen(argv[2]);
     char *buf = malloc(length);
     int diferentes_inodos, inodos, nbytes, nBytes = 0;
-    int offset[4] = {9000, 209000, 30725000, 409605000};
+    int offset[5] = {9000, 209000, 30725000, 409605000};
     struct STAT p_stat;
     if(argv[1] == NULL || argv[2] == NULL || argv[2] == NULL || argv[3] == NULL){
         fprintf(stderr,"La sintaxi correcta es: escribir <nombre_dispositivo> <\"$(cat fichero)\"> <diferentes_inodos>\n");

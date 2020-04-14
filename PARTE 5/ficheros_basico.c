@@ -352,6 +352,80 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
     */
    return ptr; //nbfisico
 }
+int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo) {
+    unsigned int nRangoBL,nivel_punteros,indice,ptr,nBL,ultimoBL;
+    int bloques_punteros[3][NPUNTEROS];
+    int ptr_nivel[3];
+    int indices[3];
+    int liberados;
+
+    liberados = 0;
+    if (inodo -> tamEnBytesLog == 0){
+        return 0;
+    }
+    if (inodo -> tamEnBytesLog % BLOCKSIZE == 0) {
+        ultimoBL = inodo -> tamEnBytesLog/BLOCKSIZE - 1;
+    }else{
+        ultimoBL = inodo -> tamEnBytesLog / BLOCKSIZE;
+    }
+    ptr = 0;
+    for (nBL = primerBL ; nBL == ultimoBL ; nBL++){ // !!!!!!!!!
+        nRangoBL = obtener_nrangoBL(*inodo,nBL,&ptr);
+        if (nRangoBL < 0){
+            return EXIT_FAILURE;
+        }
+        nivel_punteros = nRangoBL;
+        while (ptr > 0 && nivel_punteros > 0){
+            indice = obtener_indice(nBL,nivel_punteros);
+            if( indice == 0 || nBL == primerBL){
+                bread(ptr,bloques_punteros[nivel_punteros - 1]);
+            }
+            ptr_nivel[nivel_punteros - 1] = ptr;
+            indices[nivel_punteros - 1] = indice;
+            ptr = bloques_punteros[nivel_punteros - 1][indice];
+            nivel_punteros -- ;
+        }
+        if (ptr > 0){
+            liberar_bloque(ptr);
+            liberados++;
+            if (nRangoBL == 0){
+                inodo -> punterosDirectos[nBL] = 0;
+            }else{
+                while (nivel_punteros < nRangoBL){
+                    indice = indices[nivel_punteros];
+                    bloques_punteros[nivel_punteros][indice] = 0;
+                    ptr = ptr_nivel[nivel_punteros];
+                    if (bloques_punteros[nivel_punteros] == 0){
+                        liberar_bloque(ptr);
+                        liberados ++;
+                        nivel_punteros ++;
+                        if (nivel_punteros = nRangoBL){
+                            inodo -> punterosIndirectos[nRangoBL - 1] = 0;
+                        }
+                    }else{
+                        bwrite(ptr,bloques_punteros[nivel_punteros]);
+                        nivel_punteros = nRangoBL;
+                    }
+                }
+            }
+        }
+    }
+    return liberados;
+}
+int liberar_inodo(unsigned int ninodo){
+    struct superbloque SB;
+    struct inodo inodo;
+    leer_inodo(ninodo,&inodo);
+    inodo.numBloquesOcupados = inodo.numBloquesOcupados - liberar_bloques_inodo(0,&inodo);
+    inodo.tipo = 'l';
+    inodo.tamEnBytesLog = 0;
+    bread(posSB,&SB);
+    SB.cantInodosLibres++;
+    SB.posPrimerInodoLibre = traducir_bloque_inodo(ninodo,0,0);
+    escribir_inodo(ninodo,inodo);//escribir el inodo
+    bwrite(posSB,&SB);//escribir superbloque
+    return ninodo;//devolver el número del inodo liberado
+}
 
 
 
