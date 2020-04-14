@@ -22,7 +22,7 @@ int main(int argc, char **argv){
             total += mi_read_f(ninodo, buf_texto, offset, nbytes);
             check = mi_read_f(ninodo, buf_texto, offset, nbytes);
             write(1, buf_texto, nbytes);
-            offset += nbytes;
+                offset += nbytes;
             if(!(check > 0)){
                 EndOfFile = true;
             }

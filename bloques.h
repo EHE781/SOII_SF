@@ -7,6 +7,7 @@
 #include <string.h> // strerror()
 #define PATH_MAX 4096 //MAX PATH length
 #define BLOCKSIZE 1024 // bytes
+#define EXIT_FAILURE -1
 
 int bmount(const char *camino);
 int bumount();
