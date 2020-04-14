@@ -116,6 +116,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
        
     }else
     {   //no tienes permisos de lectura
+        fprintf(stderr, "\n No hay permisos\n");
         return EXIT_FAILURE;
     }
     

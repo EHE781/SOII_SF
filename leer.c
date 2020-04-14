@@ -21,6 +21,10 @@ int main(int argc, char **argv){
             memset(buf_texto, 0, nbytes);
             total += mi_read_f(ninodo, buf_texto, offset, nbytes);
             check = mi_read_f(ninodo, buf_texto, offset, nbytes);
+            if(check == EXIT_FAILURE){
+                bumount(dir);
+                return EXIT_FAILURE;
+            }
             write(1, buf_texto, check); //los que hemos leído esta vez
             offset += check; //los que hemos leído esta vez
             if(check == 0){
