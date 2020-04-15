@@ -363,13 +363,13 @@ int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo) {
     if (inodo -> tamEnBytesLog == 0){
         return 0;
     }
-    if (inodo -> tamEnBytesLog % BLOCKSIZE == 0) {
+    if ((inodo -> tamEnBytesLog % BLOCKSIZE) == 0) {
         ultimoBL = inodo -> tamEnBytesLog/BLOCKSIZE - 1;
     }else{
         ultimoBL = inodo -> tamEnBytesLog / BLOCKSIZE;
     }
     ptr = 0;
-    for (nBL = primerBL ; nBL == ultimoBL ; nBL++){ // !!!!!!!!!
+    for (nBL = primerBL ; nBL < ultimoBL ; nBL++){ // !!!!!!!!!
         nRangoBL = obtener_nrangoBL(*inodo,nBL,&ptr);
         if (nRangoBL < 0){
             return EXIT_FAILURE;
@@ -399,7 +399,7 @@ int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo) {
                         liberar_bloque(ptr);
                         liberados ++;
                         nivel_punteros ++;
-                        if (nivel_punteros = nRangoBL){
+                        if (nivel_punteros == nRangoBL){
                             inodo -> punterosIndirectos[nRangoBL - 1] = 0;
                         }
                     }else{
@@ -415,8 +415,10 @@ int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo) {
 int liberar_inodo(unsigned int ninodo){
     struct superbloque SB;
     struct inodo inodo;
+    int liberados = 0;
     leer_inodo(ninodo,&inodo);
-    inodo.numBloquesOcupados -= liberar_bloques_inodo(0, &inodo);
+    liberados = liberar_bloques_inodo(0, &inodo);
+    inodo.numBloquesOcupados -= liberados;
     inodo.tipo = 'l';
     inodo.tamEnBytesLog = 0;
     bread(posSB, &SB);

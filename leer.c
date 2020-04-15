@@ -33,9 +33,12 @@ int main(int argc, char **argv){
         }
         if(inodo.tipo == 'l'){
             fprintf(stderr, "\n¡El inodo es libre!\n");
+            fprintf(stderr, "\nLos bytes lógicos del inodo son: %i, y el total de bytes leídos: %i\n", 
+            inodo.tamEnBytesLog, total);
         }
         else{
-            fprintf(stderr, "\nLos bytes lógicos del inodo son: %i, y el total de bytes leídos: %i\n", inodo.tamEnBytesLog, total);
+            fprintf(stderr, "\nLos bytes lógicos del inodo son: %i, y el total de bytes leídos: %i\n", 
+            inodo.tamEnBytesLog, total);
         }
         bumount(dir);
     }

@@ -1,11 +1,5 @@
 #include "ficheros_basico.h"
 
-int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset ,unsigned int nbytes);
-int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsigned int nbytes);
-int mi_chmod_f(unsigned int ninodo, unsigned char permisos);
-int mi_stat_f(unsigned int ninodo, struct STAT *p_stat);
-int mi_truncar_f(unsigned int ninodo, unsigned int nbytes);
-
 struct STAT {     // comprobar que ocupa 128 bytes haciendo un sizeof(inodo)!!!
    char tipo;     // Tipo ('l':libre, 'd':directorio o 'f':fichero)
    char permisos; // Permisos (lectura y/o escritura y/o ejecución)
@@ -18,3 +12,9 @@ struct STAT {     // comprobar que ocupa 128 bytes haciendo un sizeof(inodo)!!!
    unsigned int tamEnBytesLog;      // Tamaño en bytes lógicos. Se actualizará al escribir si crece
    unsigned int numBloquesOcupados; // Cantidad de bloques ocupados zona de datos
 };
+
+int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset ,unsigned int nbytes);
+int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsigned int nbytes);
+int mi_chmod_f(unsigned int ninodo, unsigned char permisos);
+int mi_stat_f(unsigned int ninodo, struct STAT *p_stat);
+int mi_truncar_f(unsigned int ninodo, unsigned int nbytes);
