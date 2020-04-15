@@ -90,5 +90,15 @@ printf("ID: %d \nATIME: %s \nMTIME: %s \nCTIME: %s\n",ninodo,atime,mtime,ctime);
 printf("nlinks: %i\n",inodo.nlinks);
 printf("tamaño en bytes lógicos: %i\n",inodo.tamEnBytesLog);
 printf("Número de bloques ocupados: %i\n",inodo.numBloquesOcupados);
-    return 0;
+/*CHECK PARTE 4
+printf("INODO 1. TRADUCCION DE LOS BLOQUES LOGICOS 8, 204, 30.004, 400.004 y 16.843.019\n\n");
+int inodoReservado = reservar_inodo('f',6);
+traducir_bloque_inodo(inodoReservado,8,1);
+traducir_bloque_inodo(inodoReservado,204,1);
+traducir_bloque_inodo(inodoReservado,30004,1);
+traducir_bloque_inodo(inodoReservado,400004,1);
+traducir_bloque_inodo(inodoReservado,16843019,1);
+Falta comprobacion de si el inodo ha puesto una f y tiene permisos 6, pero supondremos que si
+*/
+    return EXIT_SUCCESS;
 }
