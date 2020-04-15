@@ -147,3 +147,25 @@ int mi_chmod_f(unsigned int ninodo, unsigned char permisos){
     escribir_inodo(ninodo, inodo);
     return EXIT_SUCCESS;
 }
+int mi_truncar_f(unsigned int ninodo, unsigned int nbytes){
+
+    int primerBL = 0;
+
+    //Hay que comprobar que el inodo tenga permisos de escritura. 
+    //No se puede truncar más allá del tamaño en bytes lógicos del fichero/directorio.
+    //Nos basaremos en la función liberar_bloques_inodo() . 
+
+    //Para saber que nº de bloque lógico le hemos de pasar como primer bloque lógico a liberar: 
+    /*si nbytes % BLOCKSIZE = 0  entonces primerBL := nbytes/BLOCKSIZE 
+    si_no primerBL := nbytes/BLOCKSIZE + 1*/
+
+    if (nbytes % BLOCKSIZE == 0){
+
+        primerBL = nbytes/BLOCKSIZE;
+
+    }else{
+
+        primerBL = nbytes/BLOCKSIZE + 1;
+
+    }
+}
