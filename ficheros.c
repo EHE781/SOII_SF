@@ -45,6 +45,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset
         return total; //nbytes escritos que si va bien deberia ser total=nbytes
     }
     else{
+        fprintf(stderr, "\n¡No hay permisos de escritura!\n");
         //el inodo no tiene permisos de escritura
         return EXIT_FAILURE;
     }
@@ -116,7 +117,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
        
     }else
     {   //no tienes permisos de lectura
-        fprintf(stderr, "\n No hay permisos\n");
+        fprintf(stderr, "\n No hay permisos de lectura\n");
         return EXIT_FAILURE;
     }
     
@@ -147,10 +148,11 @@ int mi_chmod_f(unsigned int ninodo, unsigned char permisos){
     escribir_inodo(ninodo, inodo);
     return EXIT_SUCCESS;
 }
+
 int mi_truncar_f(unsigned int ninodo, unsigned int nbytes){
 
     int primerBL = 0;
-
+    struct inodo inodo;
     //Hay que comprobar que el inodo tenga permisos de escritura. 
     //No se puede truncar más allá del tamaño en bytes lógicos del fichero/directorio.
     //Nos basaremos en la función liberar_bloques_inodo() . 
@@ -158,14 +160,27 @@ int mi_truncar_f(unsigned int ninodo, unsigned int nbytes){
     //Para saber que nº de bloque lógico le hemos de pasar como primer bloque lógico a liberar: 
     /*si nbytes % BLOCKSIZE = 0  entonces primerBL := nbytes/BLOCKSIZE 
     si_no primerBL := nbytes/BLOCKSIZE + 1*/
-
-    if (nbytes % BLOCKSIZE == 0){
-
-        primerBL = nbytes/BLOCKSIZE;
-
-    }else{
-
-        primerBL = nbytes/BLOCKSIZE + 1;
-
+    leer_inodo(ninodo, &inodo);
+    if((inodo.permisos & 2) == 2){
+        if (nbytes >= inodo.tamEnBytesLog){ //si es mayor o igual a los bytes del inodo
+            return EXIT_FAILURE;
+        }
+        if (nbytes % BLOCKSIZE == 0){
+            primerBL = nbytes/BLOCKSIZE;
+        }
+        else{
+            primerBL = nbytes/BLOCKSIZE + 1;
+        }
+        int bloquesL = liberar_bloques_inodo(primerBL, &inodo);
+        inodo.numBloquesOcupados -= bloquesL;
+        inodo.tamEnBytesLog = nbytes;
+        inodo.mtime = time(NULL);
+        inodo.ctime = time(NULL);
+        escribir_inodo(ninodo, inodo);
+        return bloquesL;
+    }
+    else{
+        fprintf(stderr, "\n¡No hay permisos de escritura!\n");
+        return EXIT_FAILURE;
     }
 }
