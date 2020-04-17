@@ -23,6 +23,7 @@ printf("totBloques: %i\n", SB.totBloques);
 printf("totInodos: %i\n\n", SB.totInodos);
 printf("sizeof struct superbloque: %lu\n", sizeof(struct superbloque));
 printf("sizeof struct inodo: %lu\n\n", sizeof(struct inodo));
+/* Comentado para ENTREGA 1
 printf("RECORRIDO LISTA ENLAZADA DE INODOS LIBRES(omitido por longevidad):\n");/*
 int bloqueAI = SB.posPrimerBloqueAI;
 int contInodo = 0; //variable para leer inodo a inodo en un bloque
@@ -38,7 +39,7 @@ for(int i = SB.posPrimerBloqueAI; i <= SB.posUltimoBloqueAI; i++){
     contInodo ++; //aumentamos en un inodo los leidos hasta ahora
     }
     bloqueAI++; //siguiente bloque a leer
-}*/
+}--Al descomentar poner un end comment aqui
 printf("\nRESERVAMOS UN BLOQUE Y LUEGO LO LIBERAMOS:\n");
 int reservado = reservar_bloque();
 bwrite(posSB, &SB);
@@ -70,6 +71,7 @@ bit = leer_bit(SB.posUltimoBloqueDatos);
 printf("[leer_bit()→ nbloque: %i]\n",SB.posUltimoBloqueDatos);
 printf("valor del bit correspondiente a posUltimoBloqueDatos (o sea al BF nº %i)  = %i\n\n",SB.posUltimoBloqueDatos,bit);
 printf("\nDATOS DEL DIRECTORIO RAIZ\n\n");
+/*DATOS INODO RAIZ, ETC  -- Descomentar solo esta línea para ello
 struct tm *ts;
 char atime[80];
 char mtime[80];

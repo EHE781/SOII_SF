@@ -298,10 +298,14 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
                 if(nivel_punteros == nRangoBL){
                 //el bloque cuelga directamente del inodo
                 inodo.punterosIndirectos[nRangoBL-1] = ptr; // (imprimirlo para test)
+                fprintf(stderr, "[traducir_bloque_inodo() → inodo.punterosIndirectos[%i] = %i (reservado BF %i para punteros_nivel%i\n",
+                nRangoBL-1, ptr, ptr, nivel_punteros);
                 }   
                 else {   //el bloque cuelga de otro bloque de punteros
                 buffer[indice] = ptr;// (imprimirlo para test)
                 bwrite(ptr_ant, buffer);
+                fprintf(stderr, "[traducir_bloque_inodo() → punteros_nivel%i[%i] = %i (reservado BF %i para punteros_nivel%i)\n",
+                nivel_punteros + 1, indice, ptr, ptr, nivel_punteros);
                 }
             }
         }
@@ -323,33 +327,20 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
          inodo.ctime = time(NULL);
          if(nRangoBL == 0){
             inodo.punterosDirectos[nblogico] = ptr; // (imprimirlo para test)
+            fprintf(stderr, "[traducir_bloque_inodo() → inodo.punterosDirectos[%i] = %i (reservado BF %i para BL %i)\n",
+            nblogico, ptr, ptr, nblogico);
          }
          else{
             buffer[indice] = ptr; // (imprimirlo para test)
             bwrite(ptr_ant, buffer);
+            fprintf(stderr, "[traducir_bloque_inodo() → inodo.punteros_nivel1[%i] = %i (reservado BF %i para BL %i\n",
+            indice, ptr, ptr, nblogico);
         }
       }
     }
     if (salvar_inodo == 1){
         escribir_inodo(ninodo, inodo);  //sólo si lo hemos actualizado
     }
-    /*
-    //CHECKEADOR START (BORRABLE)
-    if(nRangoBL == 0){
-    printf("[traducir_bloque_inodo()→ inodo.punterosDirectos[%i] = %i (reservado BF %i para BL %i)]\n",
-    nblogico,nblogico+SB.posPrimerBloqueDatos,nblogico+SB.posPrimerBloqueMB,nblogico);
-    }else if(nRangoBL < 2 ){
-        printf("[traducir_bloque_inodo()→ inodo.punteros_nivel1[%i] = %i (reservado BF %i para BL %i)]\n",
-    indice,nblogico+SB.posPrimerBloqueDatos,nblogico+SB.posPrimerBloqueMB,nblogico);
-    }else if(nRangoBL < 3){
-        printf("[traducir_bloque_inodo()→ inodo.punteros_nivel2[%i] = %i (reservado BF %i para BL %i)]\n",
-    indice,nblogico+SB.posPrimerBloqueDatos,nblogico+SB.posPrimerBloqueMB,nblogico);
-    }else {
-        printf("[traducir_bloque_inodo()→ inodo.punteros_nivel3[%i] = %i (reservado BF %i para BL %i)]\n",
-    indice,nblogico+SB.posPrimerBloqueDatos,nblogico+SB.posPrimerBloqueMB,nblogico);
-    }
-    //CHECKEADOR END (BORRABLE)
-    */
    return ptr; //nbfisico
 }
 int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo) {
