@@ -349,6 +349,7 @@ int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo) {
     int ptr_nivel[3];
     int indices[3];
     int liberados;
+    unsigned char bufAux_punteros[BLOCKSIZE];
 
     liberados = 0;
     if (inodo -> tamEnBytesLog == 0){
@@ -360,7 +361,7 @@ int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo) {
         ultimoBL = inodo -> tamEnBytesLog / BLOCKSIZE;
     }
     ptr = 0;
-    for (nBL = primerBL ; nBL < ultimoBL ; nBL++){ // !!!!!!!!!
+    for (nBL = primerBL ; nBL < ultimoBL ; nBL++){ 
         nRangoBL = obtener_nrangoBL(*inodo,nBL,&ptr);
         if (nRangoBL < 0){
             return EXIT_FAILURE;
@@ -394,6 +395,11 @@ int liberar_bloques_inodo(unsigned int primerBL,struct inodo *inodo) {
                             inodo -> punterosIndirectos[nRangoBL - 1] = 0;
                         }
                     }else{
+                        memset(bufAux_punteros,0,BLOCKSIZE);                 
+                        if(memcmp(bloques_punteros[nivel_punteros],bufAux_punteros,BLOCKSIZE) == 0){
+                            liberar_bloque(ptr);
+                            liberados ++;
+                        }
                         bwrite(ptr,bloques_punteros[nivel_punteros]);
                         nivel_punteros = nRangoBL;
                     }
