@@ -21,8 +21,8 @@ printf("cantBloquesLibres: %i\n", SB.cantBloquesLibres);
 printf("cantInodosLibres: %i\n", SB.cantInodosLibres);
 printf("totBloques: %i\n", SB.totBloques);
 printf("totInodos: %i\n\n", SB.totInodos);
-printf("sizeof struct superbloque: %lu\n", sizeof(struct superbloque));
-printf("sizeof struct inodo: %lu\n\n", sizeof(struct inodo));
+//printf("sizeof struct superbloque: %lu\n", sizeof(struct superbloque));
+//printf("sizeof struct inodo: %lu\n\n", sizeof(struct inodo));
 /* Comentado para ENTREGA 1
 printf("RECORRIDO LISTA ENLAZADA DE INODOS LIBRES(omitido por longevidad):\n");/*
 int bloqueAI = SB.posPrimerBloqueAI;
