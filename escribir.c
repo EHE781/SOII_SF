@@ -15,7 +15,7 @@ int main(int argc, char **argv){
     unsigned int length;
     length = strlen(argv[2]);
     char *buf = malloc(length);
-    int diferentes_inodos, inodos, nbytes, nBytes = 0;
+    int inodos, nBytes = 0;
     int offset[5] = {9000, 209000, 30725000, 409605000, 480000000};
     struct STAT p_stat;
     struct tm * info;
@@ -77,7 +77,7 @@ int main(int argc, char **argv){
       }
     }
     else{
-      printf("No es una opción de inodo válida, %s", inodos);
+      printf("No es una opción de inodo válida, %d", inodos);
     }
     bumount(dir);
     return EXIT_SUCCESS;
