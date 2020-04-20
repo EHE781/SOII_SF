@@ -275,12 +275,13 @@ int obtener_indice(int nblogico,int nivel_punteros){
             return ((nblogico - INDIRECTOS1) % (NPUNTEROS * NPUNTEROS)) % NPUNTEROS;
         }
     }
+    return EXIT_SUCCESS;
 }
 
 int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reservar){
     bread(posSB, &SB);
     struct inodo inodo;
-    int ptr, ptr_ant, salvar_inodo, nRangoBL, nivel_punteros, indice;
+    unsigned int ptr, ptr_ant, salvar_inodo, nRangoBL, nivel_punteros, indice;
     int buffer[NPUNTEROS];  
     leer_inodo (ninodo, &inodo);
     ptr = ptr_ant = salvar_inodo = 0;
