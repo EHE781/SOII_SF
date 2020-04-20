@@ -11,6 +11,9 @@ int main(int argc, char **argv){
     int total = 0;
     int check = 1;
     bool EndOfFile = false;
+    struct tm * info;
+    struct STAT p_stat;
+    char afecha[24], cfecha[24], mfecha[24];
     if(argv[1] == NULL || argv[2] == NULL){
         fprintf(stderr, "La sintaxi correcta es <camino a SF> <ninodo>\n");
     }
@@ -37,8 +40,21 @@ int main(int argc, char **argv){
             inodo.tamEnBytesLog, total);
         }
         else{
-            fprintf(stderr, "\nLos bytes lógicos del inodo son: %i, y el total de bytes leídos: %i\n", 
-            inodo.tamEnBytesLog, total);
+            mi_stat_f(ninodo, &p_stat);
+            strftime(afecha, 24, "%a %d-%m-%Y %H:%M:%S", info = localtime(&p_stat.atime));
+            strftime(cfecha, 24, "%a %d-%m-%Y %H:%M:%S", info = localtime(&p_stat.ctime));
+            strftime(mfecha, 24, "%a %d-%m-%Y %H:%M:%S", info = localtime(&p_stat.mtime));
+            fprintf(stderr, "DATOS INODO %i\n\
+            tipo=%c\n\
+            permisos=%i\n\
+            atime: %s\n\
+            ctime: %s\n\
+            mtime: %s\n\
+            nlinks: %i\n\
+            tamEnBytesLog=%i\n\
+            numBloquesOcupados=%i\n",
+            ninodo, p_stat.tipo, p_stat.permisos, afecha, cfecha, mfecha,
+            p_stat.nlinks, p_stat.tamEnBytesLog, p_stat.numBloquesOcupados);
         }
         bumount(dir);
     }
