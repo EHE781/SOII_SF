@@ -128,7 +128,7 @@ int reservar_bloque(){
     int posbyte = 0;
     int posBloqueMB = SB.posPrimerBloqueMB;
     unsigned char *bufferMB = malloc(BLOCKSIZE);
-    const unsigned char *bufferAux = malloc(BLOCKSIZE);
+    unsigned char *bufferAux = malloc(BLOCKSIZE);
     memset(bufferAux,255,BLOCKSIZE); //problem here
         while(equal == true){
         bread(posBloqueMB,bufferMB);
