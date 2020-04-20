@@ -77,7 +77,7 @@ int main(int argc, char **argv){
       }
     }
     else{
-      printf("No es una opción de inodo válida, %s", inodos);
+      fprintf(stderr, "No es una opción de inodo válida, %i", inodos);
     }
     bumount(dir);
     return EXIT_SUCCESS;
