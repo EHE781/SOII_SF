@@ -40,8 +40,9 @@ int initSB(unsigned int nbloques, unsigned int ninodos){
 int initMB(){
     int setBloques = SB.cantBloquesLibres; //cuantos bloques de datos se ponen a 0
     int bloque = SB.posPrimerBloqueDatos; //primer bloque de datos en el cual escribir
-    void *buf[BLOCKSIZE];
-    memset(buf, 0, BLOCKSIZE);  //preparamos un buffer tamaño BLOCKSIZE
+    unsigned int tam_bloque = BLOCKSIZE;
+    void *buf[tam_bloque];
+    memset(buf, 0, tam_bloque * sizeof(char));  //preparamos un buffer tamaño BLOCKSIZE
     int result;
     for(int i = 0; i < setBloques; i ++){
         result = bwrite(bloque, buf);

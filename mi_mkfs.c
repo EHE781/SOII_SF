@@ -2,11 +2,12 @@
 #include "ficheros_basico.h"
 const char *cwd;
 int nbloques = 0;
+unsigned int tam_bloque = BLOCKSIZE;
 unsigned char *buf[BLOCKSIZE];
 void *bufferSB[BLOCKSIZE];
 struct superbloque SB;
 int main(int argc, char **argv){
-    memset(buf, 0, BLOCKSIZE);
+    memset(buf, 0, tam_bloque * sizeof(char));
     cwd = argv[1];
     bmount(cwd);
     nbloques = atoi(argv[2]);
