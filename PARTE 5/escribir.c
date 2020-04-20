@@ -15,9 +15,11 @@ int main(int argc, char **argv){
     unsigned int length;
     length = strlen(argv[2]);
     char *buf = malloc(length);
-    int diferentes_inodos, inodos, nbytes, nBytes = 0;
-    int offset[5] = {9000, 209000, 30725000, 409605000};
+    int inodos, nBytes = 0;
+    int offset[5] = {9000, 209000, 30725000, 409605000, 480000000};
     struct STAT p_stat;
+    struct tm * info;
+    char afecha[24], cfecha[24], mfecha[24];
     if(argv[1] == NULL || argv[2] == NULL || argv[2] == NULL || argv[3] == NULL){
         fprintf(stderr,"La sintaxi correcta es: escribir <nombre_dispositivo> <\"$(cat fichero)\"> <diferentes_inodos>\n");
         return EXIT_FAILURE;
@@ -29,27 +31,53 @@ int main(int argc, char **argv){
     if(inodos == 0){ // si la opción de diferentes inodos es 0
       ninodo = reservar_inodo('f', 6); //reservamos inodo r/w
       strcpy(buf, argv[2]); //copiamos el texto pasado por parámetro a un buffer
-      for(int i = 0; i < 4; i++){ //para cada offset el mismo inodo
-        printf("El ninodo es: %i\n", ninodo); //imprimimos el numero de inodo
+      for(int i = 0; i < 5; i++){ //para cada offset el mismo inodo
+        fprintf(stderr, "El nº de inodo reservado es: %i\n", ninodo);
+        fprintf(stderr, "Offset: %i\n", offset[i]);
         nBytes += mi_write_f(ninodo, buf, offset[i], length);//sumamos en una variable los bytes escritos
+        mi_stat_f(ninodo, &p_stat);
+        strftime(afecha, 24, "%a %d-%m-%Y %H:%M:%S", info = localtime(&p_stat.atime));
+        strftime(cfecha, 24, "%a %d-%m-%Y %H:%M:%S", info = localtime(&p_stat.ctime));
+        strftime(mfecha, 24, "%a %d-%m-%Y %H:%M:%S", info = localtime(&p_stat.mtime));
+        fprintf(stderr, "DATOS INODO %i\n\
+        tipo=%c\n\
+        permisos=%i\n\
+        atime: %s\n\
+        ctime: %s\n\
+        mtime: %s\n\
+        nlinks: %i\n\
+        tamEnBytesLog=%i\n\
+        numBloquesOcupados=%i\n",
+        ninodo, p_stat.tipo, p_stat.permisos, afecha, cfecha, mfecha,
+        p_stat.nlinks, p_stat.tamEnBytesLog, p_stat.numBloquesOcupados);
       }
-      mi_stat_f(ninodo, &p_stat);
-      fprintf(stderr, "\nEl tamaño en bytes lógicos del inodo escrito es: %i, y los bloques ocupados: %i\n",
-      p_stat.tamEnBytesLog, p_stat.numBloquesOcupados);
     }
     else if(inodos == 1){
       strcpy(buf, argv[2]);
       for(int i = 0; i < 4; i++){
         ninodo = reservar_inodo('f', 6);
-        printf("El ninodo es: %i\n", ninodo);
+        fprintf(stderr, "El nº de inodo reservado es: %i\n", ninodo);
+        fprintf(stderr, "Offset: %i\n", offset[i]);
         nBytes += mi_write_f(ninodo, buf, offset[i], length);
         mi_stat_f(ninodo, &p_stat);
-        fprintf(stderr, "\nEl tamaño en bytes lógicos del inodo escrito es: %i, y los bloques ocupados: %i\n",
-        p_stat.tamEnBytesLog, p_stat.numBloquesOcupados);
+        strftime(afecha, 24, "%a %d-%m-%Y %H:%M:%S", info = localtime(&p_stat.atime));
+        strftime(cfecha, 24, "%a %d-%m-%Y %H:%M:%S", info = localtime(&p_stat.ctime));
+        strftime(mfecha, 24, "%a %d-%m-%Y %H:%M:%S", info = localtime(&p_stat.mtime));
+        fprintf(stderr, "DATOS INODO %i\n\
+        tipo=%c\n\
+        permisos=%i\n\
+        atime: %s\n\
+        ctime: %s\n\
+        mtime: %s\n\
+        nlinks: %i\n\
+        tamEnBytesLog=%i\n\
+        numBloquesOcupados=%i\n",
+        ninodo, p_stat.tipo, p_stat.permisos, afecha, cfecha, mfecha,
+        p_stat.nlinks, p_stat.tamEnBytesLog, p_stat.numBloquesOcupados);
       }
     }
     else{
-      printf("No es una opción de inodo válida, %s", inodos);
+      fprintf(stderr, "No es una opción de inodo válida, %i", inodos);
     }
     bumount(dir);
     return EXIT_SUCCESS;
