@@ -28,16 +28,20 @@ int main(int argc, char **argv){
                 bumount(dir);
                 return EXIT_FAILURE;
             }
-            write(1, buf_texto, check); //los que hemos leído esta vez
-            offset += check; //los que hemos leído esta vez
+            if(check < nbytes){
+                const char *buf_aux[check];
+                memcpy(buf_aux, buf_texto, check);
+                write(1, buf_aux, check);
+            }else{
+                write(1, buf_texto, check); //los que hemos leído esta vez
+            }
             if(check == 0){
                 EndOfFile = true;
             }
+            offset += check; //los que hemos leído esta vez
         }
         if(inodo.tipo == 'l'){
             fprintf(stderr, "\n¡El inodo es libre!\n");
-            fprintf(stderr, "\nLos bytes lógicos del inodo son: %i, y el total de bytes leídos: %i\n", 
-            inodo.tamEnBytesLog, total);
         }
         else{
             mi_stat_f(ninodo, &p_stat);
@@ -55,6 +59,8 @@ int main(int argc, char **argv){
             numBloquesOcupados=%i\n",
             ninodo, p_stat.tipo, p_stat.permisos, afecha, cfecha, mfecha,
             p_stat.nlinks, p_stat.tamEnBytesLog, p_stat.numBloquesOcupados);
+            fprintf(stderr, "\nLos bytes lógicos del inodo son: %i, y el total de bytes leídos: %i\n", 
+            inodo.tamEnBytesLog, total);
         }
         bumount(dir);
     }

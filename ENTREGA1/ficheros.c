@@ -2,7 +2,7 @@
 
 int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset ,unsigned int nbytes){
     struct inodo inodo;
-    unsigned char *buf_bloque[BLOCKSIZE];
+    void *buf_bloque =  malloc(BLOCKSIZE);
     int total = 0;
     leer_inodo(ninodo, &inodo);
     if((inodo.permisos & 2) == 2){
@@ -54,7 +54,7 @@ int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset
 int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsigned int nbytes){
     struct inodo inodo;
     leer_inodo(ninodo, &inodo);
-    unsigned char *buf_bloque[BLOCKSIZE];
+    void *buf_bloque = malloc(BLOCKSIZE);
     if ((inodo.permisos & 4) == 4){
         int bytesLeidos = 0;
         if(offset >= inodo.tamEnBytesLog){
@@ -70,7 +70,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
         int desp2 = (offset + nbytes - 1) % BLOCKSIZE;
         int BFisico = traducir_bloque_inodo(ninodo, primerBLogico, 0);
         if(primerBLogico == ultimoBLogico){
-            if(BFisico != -1){
+            if(BFisico != EXIT_FAILURE){
                 bread(BFisico, buf_bloque);
                 if(desp2 == 0){//caso en que se tenga que leer el ultimo bloque de una secuencia
                     memcpy(buf_original, buf_bloque + desp1, BLOCKSIZE - desp1);
@@ -87,6 +87,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
             //posible falta de deteccion de bloques vacíos error
             desp2 = offset + nbytes - 1;
             if(BFisico != -1){
+                //cosas con desp1!!!!
                 bread(BFisico, buf_bloque);
                 memcpy (buf_original, buf_bloque + desp1, BLOCKSIZE - desp1);
                 bytesLeidos += BLOCKSIZE - desp1;
