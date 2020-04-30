@@ -46,12 +46,56 @@ unsigned int *p_inodo, unsigned int *p_entrada, char reservar, unsigned char per
     if(error == EXIT_FAILURE){
         return ERROR_PERMISO_LECTURA;
     }
-    unsigned char *buf_entradas[BLOCKSIZE / sizeof(struct entrada)] = malloc(BLOCKSIZE);
-    int num_entradas = 0;
-    if(inodo_dir.tamEnBytesLog == 0){
-        //ERROR NO HAY NADA EN EL INODO
-    }
-    else{
-        num_entradas = inodo_dir.tamEnBytesLog / sizeof(struct entrada);
+    struct entrada buf_entradas[BLOCKSIZE / sizeof(struct entrada)];
+    int num_entrada_inodo = 0;
+    int cant_entradas_inodo = inodo_dir.tamEnBytesLog / sizeof(struct entrada);
+    int offset = 0;
+    memset(buf_entradas, 0, BLOCKSIZE / sizeof(struct entrada));
+    if(num_entrada_inodo > 0){
+        //leemos entradas
+        offset += mi_read_f(*p_inodo_dir, buf_entradas, offset, BLOCKSIZE);
+        //leemos primera entrada(0)
+        while((num_entrada_inodo < cant_entradas_inodo) && (inicial != buf_entradas[num_entrada_inodo].nombre)){
+            num_entrada_inodo++;
+            if((num_entrada_inodo % (BLOCKSIZE / sizeof(struct entrada))) == 0){ //hemos leido el buffer entero
+                offset += mi_read_f(*p_inodo_dir, &buf_entradas, offset, BLOCKSIZE);
+            }
+        }
+        if((num_entrada_inodo == cant_entradas_inodo) && (inicial != buf_entradas[num_entrada_inodo].nombre)){
+            switch(reservar){
+                case 0: //modo consulta
+                    return ERROR_NO_EXISTE_ENTRADA_CONSULTA;
+                case 1: //modo escritura
+                    if(inodo_dir.tipo == 'f'){
+                        return ERROR_NO_SE_PUEDE_CREAR_ENTRADA_EN_UN_FICHERO;
+                    }
+                    if((inodo_dir.permisos & 2) != 2){
+                        return ERROR_PERMISO_ESCRITURA;
+                    }
+                    else{
+                        strcpy(&entrada.nombre, &inicial);
+                        if(inodo_dir.tipo == 'd'){
+                            if(strcmp(final, "/")){
+                                entrada.ninodo = reservar_inodo('d', 2);
+                            }
+                            else{
+                                return ERROR_NO_EXISTE_DIRECTORIO_INTERMEDIO;
+                            }
+                        }
+                        else{
+                            entrada.ninodo = reservar_inodo('f', 2);
+                        }
+                        error = mi_write_f(*p_inodo_dir, &entrada, inodo_dir.tamEnBytesLog,
+                                sizeof(struct entrada));
+                        if(error == EXIT_FAILURE){
+                            if(entrada.ninodo != -1){
+                                liberar_inodo(entrada.ninodo);
+                            }
+                            return EXIT_FAILURE;
+                        }
+                    } 
+            }
+        }
+        //si hemos llegado al final del camino  entonces ......
     }
 }
