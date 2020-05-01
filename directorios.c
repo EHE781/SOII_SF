@@ -60,7 +60,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     int cant_entradas_inodo = inodo_dir.tamEnBytesLog / sizeof(struct entrada);
     int offset = 0;
     memset(buf_entradas, 0, BLOCKSIZE / sizeof(struct entrada));
-    if (num_entrada_inodo > 0) //cant_entardas_inodo???
+    if (cant_entradas_inodo > 0)
     {
         //leemos entradas
         offset += mi_read_f(*p_inodo_dir, buf_entradas, offset, BLOCKSIZE);
