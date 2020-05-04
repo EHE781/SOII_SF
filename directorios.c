@@ -79,17 +79,21 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     }
     if ((num_entrada_inodo == cant_entradas_inodo) && (inicial != buf_entradas[num_entrada_inodo].nombre))
     {
+        printf("[buscar_entrada()-> inicial: %s, final: %s, reserva: %d] \n",inicial,final,reservar);
         switch (reservar)
         {
         case 0: //modo consulta
+           // printf("[buscar_entrada()-> inicial: %s, final: %s, reserva: %d] \n",inicial,final,reservar);
             return ERROR_NO_EXISTE_ENTRADA_CONSULTA;
         case 1: //modo escritura
             if (inodo_dir.tipo == 'f')
             {
+                 printf("[buscar_entrada()-> inicial: %s, final: %s, reserva: %d] \n",inicial,final,reservar);
                 return ERROR_NO_SE_PUEDE_CREAR_ENTRADA_EN_UN_FICHERO;
             }
             if ((inodo_dir.permisos & 2) != 2)
             {
+                 printf("[buscar_entrada()-> inicial: %s, final: %s, reserva: %d] \n",inicial,final,reservar);
                 return ERROR_PERMISO_ESCRITURA;
             }
             else
@@ -122,12 +126,14 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 }
             }
         }
+        printf("[buscar_entrada()-> inicial: %s, final: %s, reserva: %d] \n",inicial,final,reservar);
     } 
     if ((strcmp(final, "/") == 0) || tipo == 'f')
     {
         if ((num_entrada_inodo < cant_entradas_inodo) && (reservar == 1))
         {
         //modo escritura y la entrada ya existe
+        printf("[buscar_entrada()-> inicial: %s, final: %s, reserva: %d] \n",inicial,final,reservar);
         return ERROR_ENTRADA_YA_EXISTENTE;
         }
         // cortamos la recursividad
@@ -136,6 +142,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         return EXIT_SUCCESS;
     }else
     {
+        printf("[buscar_entrada()-> inicial: %s, final: %s, reserva: %d] \n",inicial,final,reservar);
         *p_inodo_dir = buf_entradas[num_entrada_inodo].ninodo;
         return buscar_entrada (final, p_inodo_dir, p_inodo, p_entrada, reservar, permisos);
     }
