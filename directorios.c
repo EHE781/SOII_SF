@@ -163,9 +163,24 @@ void mostrar_error_buscar_entrada(int error){
    case -2: fprintf(stderr, "Error: Permiso denegado de lectura.\n"); break;
    case -3: fprintf(stderr, "Error: No existe el archivo o el directorio.\n"); break;
    case -4: fprintf(stderr, "Error: No existe algún directorio intermedio.\n"); break;
-   case -5: fprintf(stderr, "Error: Permiso denegado de escritura.\n"); break;
+   case -5: fprintf(stderr, "Error: Permiso denegado de escritura.\n"); break;//decir algo sobre el padre sin permisos????duda
    case -6: fprintf(stderr, "Error: El archivo ya existe.\n"); break;
    case -7: fprintf(stderr, "Error: No es un directorio.\n"); break;
    }
 
+}
+
+int mi_creat(const char *camino, unsigned char permisos){
+    struct superbloque SB;
+    bread(posSB, &SB);
+    unsigned int p_inodo_dir, p_inodo;
+    p_inodo_dir = p_inodo = SB.posInodoRaiz;
+    unsigned int p_entrada = 0;
+    int error;
+    if((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 1, permisos)) < 0){
+        mostrar_error_buscar_entrada(error);
+        printf("***********************************************************************\n");
+        return EXIT_FAILURE;
+    }
+    return EXIT_SUCCESS;
 }
