@@ -5,8 +5,8 @@ int main(int argc, char **argv){
         fprintf(stderr, "La sintaxis correcta es \" ./mkdir <disco> <permisos> <ruta>\"\n");
     }else{
         int length = strlen(argv[3]);
-        if(argv[3][length - 1] != '/'){ //si es un fichero
-            fprintf(stderr, "No es una ruta de directorio válida\n");
+        if(argv[3][length - 1] == '/'){ //si es un fichero
+            fprintf(stderr, "No es una ruta de fichero válida\n");
         }else{
             int permisos = atoi(argv[2]);
             if(permisos < 0 || permisos > 7){
