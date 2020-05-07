@@ -301,14 +301,14 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
                 if(nivel_punteros == nRangoBL){
                 //el bloque cuelga directamente del inodo
                 inodo.punterosIndirectos[nRangoBL-1] = ptr; // (imprimirlo para test)
-                fprintf(stderr, "[traducir_bloque_inodo() → inodo.punterosIndirectos[%i] = %i (reservado BF %i para punteros_nivel%i\n",
-                nRangoBL-1, ptr, ptr, nivel_punteros);
+                //fprintf(stderr, "[traducir_bloque_inodo() → inodo.punterosIndirectos[%i] = %i (reservado BF %i para punteros_nivel%i\n",
+                //nRangoBL-1, ptr, ptr, nivel_punteros);
                 }   
                 else {   //el bloque cuelga de otro bloque de punteros
                 buffer[indice] = ptr;// (imprimirlo para test)
                 bwrite(ptr_ant, buffer);
-                fprintf(stderr, "[traducir_bloque_inodo() → punteros_nivel%i[%i] = %i (reservado BF %i para punteros_nivel%i)\n",
-                nivel_punteros + 1, indice, ptr, ptr, nivel_punteros);
+                //fprintf(stderr, "[traducir_bloque_inodo() → punteros_nivel%i[%i] = %i (reservado BF %i para punteros_nivel%i)\n",
+                //nivel_punteros + 1, indice, ptr, ptr, nivel_punteros);
                 }
             }
         }
@@ -330,14 +330,14 @@ int traducir_bloque_inodo(unsigned int ninodo, unsigned int nblogico, char reser
          inodo.ctime = time(NULL);
          if(nRangoBL == 0){
             inodo.punterosDirectos[nblogico] = ptr; // (imprimirlo para test)
-            fprintf(stderr, "[traducir_bloque_inodo() → inodo.punterosDirectos[%i] = %i (reservado BF %i para BL %i)\n",
-            nblogico, ptr, ptr, nblogico);
+            //fprintf(stderr, "[traducir_bloque_inodo() → inodo.punterosDirectos[%i] = %i (reservado BF %i para BL %i)\n",
+            //nblogico, ptr, ptr, nblogico);
          }
          else{
             buffer[indice] = ptr; // (imprimirlo para test)
             bwrite(ptr_ant, buffer);
-            fprintf(stderr, "[traducir_bloque_inodo() → inodo.punteros_nivel1[%i] = %i (reservado BF %i para BL %i\n",
-            indice, ptr, ptr, nblogico);
+            //fprintf(stderr, "[traducir_bloque_inodo() → inodo.punteros_nivel1[%i] = %i (reservado BF %i para BL %i\n",
+            //indice, ptr, ptr, nblogico);
         }
       }
     }

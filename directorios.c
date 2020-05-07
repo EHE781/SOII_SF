@@ -48,7 +48,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         *p_entrada = 0;             //entrada 0 pertenece a inodo raíz
         return EXIT_SUCCESS;
     }
-    error = extraer_camino(camino_parcial, &inicial, &final, &tipo);
+    error = extraer_camino(camino_parcial, inicial, final, &tipo);
     if (error == EXIT_FAILURE)
     {
         return ERROR_CAMINO_INCORRECTO;
@@ -62,7 +62,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     int num_entrada_inodo = 0;
     int cant_entradas_inodo = inodo_dir.tamEnBytesLog / sizeof(struct entrada);
     int offset = 0;
-    memset(buf_entradas, 0, BLOCKSIZE / sizeof(struct entrada));
+    memset(buf_entradas, 0, (BLOCKSIZE / sizeof(struct entrada)) * sizeof(struct entrada));
     if (cant_entradas_inodo > 0)
     {
         //leemos entradas
@@ -99,7 +99,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
             }
             else
             {
-                strcpy(&entrada.nombre, &inicial);
+                strcpy(entrada.nombre, inicial);
                 if (tipo == 'd')
                 {
                     if (strcmp(final, "/") == 0)
