@@ -1,4 +1,4 @@
-#include "directorios.h"
+#include "headers/directorios.h"
  
 void mostrar_buscar_entrada(char *camino, char reservar){
  unsigned int p_inodo_dir = 0;

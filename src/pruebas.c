@@ -1,4 +1,4 @@
-#include "directorios.h"
+#include "headers/directorios.h"
 
 int main(int argc, char **argv){
     char *final = malloc(10);

@@ -1,4 +1,4 @@
-#include "directorios.h"
+#include "headers/directorios.h"
 #define TAMFILA 100
 #define TAMDIR 10
 #define TAMFILE 59

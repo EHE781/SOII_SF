@@ -1,4 +1,4 @@
-#include "ficheros_basico.h"
+#include "headers/ficheros_basico.h"
 struct superbloque SB;
 /*DEVUELVE EL TAMAÑO DEL MAPA DE BITS*/
 int tamMB(unsigned int nbloques){

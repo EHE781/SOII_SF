@@ -1,4 +1,4 @@
-#include "bloques.h"
+#include "headers/bloques.h"
 static int fd = 0; //file descriptor
 /*MONTA EL SISTEMA DE FICHEROS Y DEVUELVE EL 
 DESCRIPTOR DE FICHERO DEL FICHERO DESDE EL QUE
