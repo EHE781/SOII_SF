@@ -1,21 +1,28 @@
 CC=gcc
 CFLAGS=-c -g -Wall -std=gnu99
 #LDFLAGS=-pthread
-
-SOURCES=mi_mkfs.c bloques.c escribir.c ficheros_basico.c ficheros.c leer.c leer_sf.c permitir.c truncar.c directorios.c pruebas.c pruebasDirectorios.c mi_mkdir.c mi_touch.c mi_ls.c#todos los .c
-LIBRARIES=bloques.o ficheros_basico.o ficheros.o directorios.o#todos los .o de la biblioteca del SF
-INCLUDES=bloques.h ficheros_basico.h ficheros.h directorios.h#todos los .h
+SRC=src
+OBJ=obj
+BIN=bin
+INC=$(SRC)/headers
+LIB=$(OBJ)/include
+SOURCES=$(wildcard $(SRC)/*.c)#todos los .c
+LIBRARIES=bloques.o ficheros_basico.o ficheros.o directorios.o#que ponemos como biblioteca
+INCLUDES=$(wildcard $(INC)/*.h)#todos los .h
 PROGRAMS=mi_mkfs leer_sf escribir leer permitir truncar pruebas pruebasDirectorios mi_mkdir mi_touch mi_ls
-OBJS=$(SOURCES:.c=.o)
+OBJS=$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SOURCES))
 
 all: $(OBJS) $(PROGRAMS)
 
 $(PROGRAMS): $(LIBRARIES) $(INCLUDES)
-	$(CC) $(LDFLAGS) $(LIBRARIES) $@.o -o $@
+	$(CC) $(LDFLAGS) $(LIB)/*.o $(OBJ)/$@.o -o $(BIN)/$@
 
-%.o: %.c $(INCLUDES)
-	$(CC) $(CFLAGS) -o $@ -c $<
+$(OBJ)/%.o: $(SRC)/%.c $(INC)/*.h
+	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
+
+$(LIBRARIES):
+	cp $(OBJ)/$@ $(LIB)
 
 .PHONY: clean
 clean:
-	rm -rf *.o *~ $(PROGRAMS)
+	rm -rf $(wildcard $(OBJ)/*.o) $(wildcard $(LIB)/*.o) *~ $(BIN)/*
