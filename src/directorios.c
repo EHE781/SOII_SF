@@ -57,7 +57,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         *p_entrada = 0;             //entrada 0 pertenece a inodo raíz
         return EXIT_SUCCESS;
     }
-    printf("08[buscar_entrada()-> inicial: %s, final: %s, reserva: %d] \n", inicial, final, reservar);
+    fprintf(stderr, "08[buscar_entrada()-> inicial: %s, final: %s, reserva: %d] \n", inicial, final, reservar);
     error = extraer_camino(camino_parcial, inicial, final, &tipo);
     if (error == EXIT_FAILURE)
     {
@@ -389,5 +389,22 @@ int mi_chmod(const char *camino, unsigned char permisos){
         return EXIT_FAILURE;
     }
     mi_chmod_f(p_inodo, permisos);
+    return EXIT_SUCCESS;
+}
+
+int mi_stat(const char *camino, struct STAT *p_stat){
+    bread(posSB, &SB);
+    unsigned int p_inodo_dir, p_inodo;
+    p_inodo_dir = p_inodo = SB.posInodoRaiz;
+    unsigned int p_entrada = 0;
+    int error;
+    //leemos el inodo, así que permisos bastan los de lectura
+    if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 4)) < 0)
+    {
+        mostrar_error_buscar_entrada(error);
+        printf("***********************************************************************\n");
+        return EXIT_FAILURE;
+    }
+    mi_stat_f(p_inodo, p_stat);
     return EXIT_SUCCESS;
 }

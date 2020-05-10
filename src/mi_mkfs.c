@@ -7,6 +7,9 @@ unsigned char *buf[BLOCKSIZE];
 void *bufferSB[BLOCKSIZE];
 struct superbloque SB;
 int main(int argc, char **argv){
+    if(argv[1] == NULL || argv[2] == NULL){
+        fprintf(stderr, "La sintaxis correcta es ./mi_mkfs <nombre_disco> <tamaño>");
+    }
     memset(buf, 0, tam_bloque * sizeof(char));
     cwd = argv[1];
     bmount(cwd);
