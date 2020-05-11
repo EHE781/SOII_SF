@@ -7,7 +7,10 @@
 #define MAGENTA "\x1b[35m"
 #define CYAN "\x1b[36m"
 #define RESET "\x1b[0m"
+#define CACHE 5
+
 struct superbloque SB;
+struct UltimaEntrada UltimasEntradas[CACHE];
 
 int extraer_camino(const char *camino, char *inicial, char *final, char *tipo)
 {
@@ -376,7 +379,8 @@ int mi_dir(const char *camino, char *buffer, char *tipo, bool ext)
     return EXIT_SUCCESS;
 }
 
-int mi_chmod(const char *camino, unsigned char permisos){
+int mi_chmod(const char *camino, unsigned char permisos)
+{
     bread(posSB, &SB);
     unsigned int p_inodo_dir, p_inodo;
     p_inodo_dir = p_inodo = SB.posInodoRaiz;
@@ -392,7 +396,8 @@ int mi_chmod(const char *camino, unsigned char permisos){
     return EXIT_SUCCESS;
 }
 
-int mi_stat(const char *camino, struct STAT *p_stat){
+int mi_stat(const char *camino, struct STAT *p_stat)
+{
     bread(posSB, &SB);
     unsigned int p_inodo_dir, p_inodo;
     p_inodo_dir = p_inodo = SB.posInodoRaiz;
@@ -407,4 +412,47 @@ int mi_stat(const char *camino, struct STAT *p_stat){
     }
     mi_stat_f(p_inodo, p_stat);
     return EXIT_SUCCESS;
+}
+//DUDA ADELAIDA, SE PUEDE LA VARIABLE BOOLEANA Y SE PUEDE LEER SB YA EN DIRECTORIOS.C
+int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned int nbytes)
+{
+    bread(posSB, &SB);
+    unsigned int p_inodo_dir, p_inodo;
+    p_inodo_dir = p_inodo = SB.posInodoRaiz;
+    unsigned int p_entrada = 0;
+    int error;
+    for (int i = 0; i < CACHE; i++)
+    {
+        if (strcmp(camino, UltimasEntradas[i].camino) == 0)
+        {
+            p_inodo = UltimasEntradas[i].p_inodo;
+            return mi_write_f(p_inodo, buf, offset, nbytes);
+        }
+    }
+    if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 2)) < 0)
+    {
+        mostrar_error_buscar_entrada(error);
+        printf("***********************************************************************\n");
+        return EXIT_FAILURE;
+    }
+    for (int i = 0; i < CACHE; i++)
+    {
+        if (UltimasEntradas[i].camino == NULL)
+        { //si aun no se ha llenado la caché
+            strcpy(UltimasEntradas[i].camino, camino);
+            UltimasEntradas[i].p_inodo = p_inodo;
+        }
+    }
+    if (UltimasEntradas[CACHE].camino != NULL)
+    { //si la caché está llena, reemplazamos con FIFO
+        for(int i = 0; i < CACHE - 1; i++){
+            strcpy(UltimasEntradas[i].camino, UltimasEntradas[i+1].camino);
+            UltimasEntradas[i].p_inodo = UltimasEntradas[i+1].p_inodo;
+        }
+        strcpy(UltimasEntradas[CACHE].camino, camino);
+            UltimasEntradas[CACHE].p_inodo = p_inodo;
+
+    }
+
+    return mi_write_f(p_inodo, buf, offset, nbytes);
 }
