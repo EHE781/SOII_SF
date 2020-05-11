@@ -55,7 +55,6 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
     struct inodo inodo;
     leer_inodo(ninodo, &inodo);
     void *buf_bloque = malloc(BLOCKSIZE);
-    int offsetBuf = 0;
     if ((inodo.permisos & 4) == 4){
         int bytesLeidos = 0;
         if(offset >= inodo.tamEnBytesLog){
@@ -92,7 +91,6 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
                 bread(BFisico, buf_bloque);
                 memcpy (buf_original, buf_bloque + desp1, BLOCKSIZE - desp1);
                 bytesLeidos += BLOCKSIZE - desp1;
-                offsetBuf += BLOCKSIZE - desp1;
             }else{
                 bytesLeidos += BLOCKSIZE;
             }
@@ -100,8 +98,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
                 BFisico = traducir_bloque_inodo(ninodo, i, 0);
                 if(BFisico != -1){
                     bytesLeidos += bread(BFisico, buf_bloque);
-                    memcpy(buf_original + offsetBuf, buf_bloque, BLOCKSIZE);
-                    offsetBuf += bread(BFisico, buf_bloque);
+                    memcpy(buf_original, buf_bloque, BLOCKSIZE);
                 }else{
                     bytesLeidos += BLOCKSIZE;
                 }
@@ -110,7 +107,7 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
             BFisico = traducir_bloque_inodo(ninodo, ultimoBLogico, 0);
             if(BFisico != -1){
                 bread(BFisico, buf_bloque);
-                memcpy (buf_original + offsetBuf, buf_bloque, desp2 + 1);
+                memcpy (buf_original, buf_bloque, desp2 + 1);
                 bytesLeidos += desp2 + 1;
             }else{
                     bytesLeidos += BLOCKSIZE;

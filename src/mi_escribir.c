@@ -14,6 +14,9 @@ int main(int argc, char **argv)
     int bytesEscritos;
     bmount(argv[1]);
     bytesEscritos = mi_write(argv[2], argv[3], atoi(argv[4]), strlen(argv[3]));
+    if(bytesEscritos == -1){ //si no ha escrito, decimos que ha escrito 0 bytes(no -1)
+        bytesEscritos += 1;
+    }
     bumount(argv[1]);
     fprintf(stderr, "Se han escrito %d bytes\n", bytesEscritos);
     return EXIT_SUCCESS;

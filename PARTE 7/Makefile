@@ -9,7 +9,7 @@ LIB=$(OBJ)/include
 SOURCES=$(wildcard $(SRC)/*.c)#todos los .c
 LIBRARIES=bloques.o ficheros_basico.o ficheros.o directorios.o#que ponemos como biblioteca
 INCLUDES=$(wildcard $(INC)/*.h)#todos los .h
-PROGRAMS=mi_mkfs leer_sf escribir leer permitir truncar pruebas pruebasDirectorios mi_mkdir mi_touch mi_ls mi_chmod mi_stat mi_escribir mi_cat mi_escribir_varios
+PROGRAMS=mi_mkfs leer_sf escribir leer permitir truncar pruebas pruebasDirectorios
 OBJS=$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SOURCES))
 
 all: $(OBJS) $(PROGRAMS)

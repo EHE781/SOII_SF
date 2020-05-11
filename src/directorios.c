@@ -60,8 +60,8 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         *p_entrada = 0;             //entrada 0 pertenece a inodo raíz
         return EXIT_SUCCESS;
     }
-    fprintf(stderr, "08[buscar_entrada()-> inicial: %s, final: %s, reserva: %d] \n", inicial, final, reservar);
     error = extraer_camino(camino_parcial, inicial, final, &tipo);
+    fprintf(stderr, "[buscar_entrada()-> inicial: %s, final: %s, reserva: %d] \n", inicial, final, reservar);
     if (error == EXIT_FAILURE)
     {
         return ERROR_CAMINO_INCORRECTO;
@@ -263,7 +263,7 @@ int mi_dir(const char *camino, char *buffer, char *tipo, bool ext)
                     }
                     strncat(buffer, &inodo.tipo, sizeof(char));
                     strcat(buffer, "\t"); //y listamos sus permisos
-                    strcat(buffer, YELLOW);
+                    strcat(buffer, CYAN);
                     if ((inodo.permisos & 4) == 4)
                     {
                         strcat(buffer, "r");
@@ -314,7 +314,7 @@ int mi_dir(const char *camino, char *buffer, char *tipo, bool ext)
         }
         else
         {
-            mi_read_f(p_inodo_dir, &entrada, 0, sizeof(struct entrada));
+            mi_read_f(p_inodo_dir, &entrada, sizeof(struct entrada) * p_entrada, sizeof(struct entrada));
             leer_inodo(entrada.ninodo, &inodo); //leemos el inodo asociado a ella
             *tipo = inodo.tipo;
             if (ext == false)
@@ -328,7 +328,7 @@ int mi_dir(const char *camino, char *buffer, char *tipo, bool ext)
                 strcat(buffer, BLUE);
                 strncat(buffer, &inodo.tipo, sizeof(char));
                 strcat(buffer, "\t"); //y listamos sus permisos
-                strcat(buffer, MAGENTA);
+                strcat(buffer, CYAN);
                 if ((inodo.permisos & 4) == 4)
                 {
                     strcat(buffer, "r");
@@ -359,6 +359,7 @@ int mi_dir(const char *camino, char *buffer, char *tipo, bool ext)
                 sprintf(tmp, "%d-%02d-%02d %02d:%02d:%02d\t", tm->tm_year + 1900,
                         tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec);
                 strcat(buffer, tmp);
+                strcat(buffer, RESET);
                 sprintf(array, "%d", inodo.tamEnBytesLog); //convertimos el numero a chars
                 strcat(buffer, array);
                 strcat(buffer, "\t");
@@ -411,7 +412,7 @@ int mi_stat(const char *camino, struct STAT *p_stat)
         return EXIT_FAILURE;
     }
     mi_stat_f(p_inodo, p_stat);
-    return EXIT_SUCCESS;
+    return p_inodo;
 }
 //DUDA ADELAIDA, SE PUEDE LA VARIABLE BOOLEANA Y SE PUEDE LEER SB YA EN DIRECTORIOS.C
 int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned int nbytes)
@@ -426,7 +427,7 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
         if (strcmp(camino, UltimasEntradas[i].camino) == 0)
         {
             p_inodo = UltimasEntradas[i].p_inodo;
-            return mi_write_f(p_inodo, buf, offset, nbytes);
+            return mi_write_f(p_inodo, buf, offset, nbytes) - offset;
         }
     }
     if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 2)) < 0)
@@ -437,22 +438,104 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
     }
     for (int i = 0; i < CACHE; i++)
     {
-        if (UltimasEntradas[i].camino == NULL)
+        if (UltimasEntradas[i].camino[0] == '\000')
         { //si aun no se ha llenado la caché
             strcpy(UltimasEntradas[i].camino, camino);
             UltimasEntradas[i].p_inodo = p_inodo;
+            fprintf(stderr, CYAN "\n[mi_write() → Actualizamos la caché de escritura]\n" RESET);
         }
     }
-    if (UltimasEntradas[CACHE].camino != NULL)
+    if (UltimasEntradas[CACHE].camino[0] != '\000')
     { //si la caché está llena, reemplazamos con FIFO
-        for(int i = 0; i < CACHE - 1; i++){
-            strcpy(UltimasEntradas[i].camino, UltimasEntradas[i+1].camino);
-            UltimasEntradas[i].p_inodo = UltimasEntradas[i+1].p_inodo;
+        for (int i = 0; i < CACHE - 1; i++)
+        {
+            strcpy(UltimasEntradas[i].camino, UltimasEntradas[i + 1].camino);
+            UltimasEntradas[i].p_inodo = UltimasEntradas[i + 1].p_inodo;
         }
         strcpy(UltimasEntradas[CACHE].camino, camino);
-            UltimasEntradas[CACHE].p_inodo = p_inodo;
-
+        UltimasEntradas[CACHE].p_inodo = p_inodo;
+        fprintf(stderr, CYAN "\n[mi_write() → Actualizamos la caché de escritura]\n" RESET);
     }
 
-    return mi_write_f(p_inodo, buf, offset, nbytes);
+    return mi_write_f(p_inodo, buf, offset, nbytes) - offset;
+}
+
+int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes)
+{
+    int total, check;
+    total = check = 0;
+    bool EndOfFile = false;
+    bread(posSB, &SB);
+    unsigned int p_inodo_dir, p_inodo;
+    p_inodo_dir = p_inodo = SB.posInodoRaiz;
+    unsigned int p_entrada = 0;
+    int error;
+    bool encontrado = false;
+    while (!EndOfFile)
+    {
+        memset(buf, 0, nbytes);
+        if (offset % nbytes == 0)
+        {
+            for (int i = 0; i < CACHE; i++)
+            {
+                if (strcmp(camino, UltimasEntradas[i].camino) == 0)
+                {
+                    p_inodo = UltimasEntradas[i].p_inodo;
+                    encontrado = true;
+                    fprintf(stderr, CYAN "\n[mi_read() → Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]\n" RESET);
+                    break;
+                }
+            }
+
+            if (!encontrado && (error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 2)) < 0)
+            {
+                mostrar_error_buscar_entrada(error);
+                printf("***********************************************************************\n");
+                return EXIT_FAILURE;
+            }
+            for (int i = 0; i < CACHE; i++)
+            {
+                if (UltimasEntradas[i].camino[0] == '\000' && !encontrado)
+                { //si aun no se ha llenado la caché
+                    strcpy(UltimasEntradas[i].camino, camino);
+                    UltimasEntradas[i].p_inodo = p_inodo;
+                    break;
+                    fprintf(stderr, CYAN "\n[mi_write() → Actualizamos la caché de lectura]\n" RESET);
+                }
+            }
+            if (UltimasEntradas[CACHE].camino[0] != '\000' && !encontrado)
+            { //si la caché está llena, reemplazamos con FIFO
+                for (int i = 0; i < CACHE - 1; i++)
+                {
+                    strcpy(UltimasEntradas[i].camino, UltimasEntradas[i + 1].camino);
+                    UltimasEntradas[i].p_inodo = UltimasEntradas[i + 1].p_inodo;
+                }
+                strcpy(UltimasEntradas[CACHE].camino, camino);
+                UltimasEntradas[CACHE].p_inodo = p_inodo;
+                fprintf(stderr, CYAN "\n[mi_write() → Actualizamos la caché de lectura]\n" RESET);
+            }
+        }
+        total += mi_read_f(p_inodo, buf, offset, nbytes);
+        check = mi_read_f(p_inodo, buf, offset, nbytes);
+        if (check == EXIT_FAILURE)
+        {
+            return EXIT_FAILURE;
+        }
+        if (check < nbytes)
+        {
+            const char *buf_aux[check];
+            memcpy(buf_aux, buf, check);
+            write(1, buf_aux, check);
+        }
+        else
+        {
+            write(1, buf, check); //los que hemos leído esta vez
+        }
+        if (check == 0)
+        {
+            EndOfFile = true;
+        }
+        offset += check; //los que hemos leído esta vez
+    }
+    return total; //retornamos todos los bytes que hemos leído en total
 }
