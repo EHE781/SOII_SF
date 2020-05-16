@@ -14,7 +14,7 @@ int main (int argc, char **argv){
     int offset = 0;
     bmount(argv[1]);
     int bytesLeidos = mi_read(argv[2], lectura, offset, tamBuffer);
-    fprintf(stderr, "Se han leído %d bytes del fichero\n", bytesLeidos);
+    fprintf(stderr, "\nSe han leído %d bytes del fichero\n", bytesLeidos);
     bumount(argv[1]);
     return EXIT_SUCCESS;
 }
