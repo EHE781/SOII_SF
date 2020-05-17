@@ -648,7 +648,8 @@ int mi_unlink(const char *camino, bool rmdir_r)
                 entrada.ninodo = ultima_entrada.ninodo; //le asignamos el mismo inodo que la ultima entrada
                 mi_write_f(p_inodo_dir, &entrada, (sizeof(struct entrada) * p_entrada), sizeof(struct entrada));
                 mi_truncar_f(p_inodo_dir, (inodo_dir.tamEnBytesLog - sizeof(struct entrada)));
-                inodo.nlinks--;
+            }
+            inodo.nlinks--;
                 if (inodo.nlinks == 0)
                 {
                     liberar_inodo(p_inodo);
@@ -658,7 +659,6 @@ int mi_unlink(const char *camino, bool rmdir_r)
                     inodo.ctime = time(NULL);
                     escribir_inodo(p_inodo, inodo);
                 }
-            }
         }
         return EXIT_SUCCESS;
     }

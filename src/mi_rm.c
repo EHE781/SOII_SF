@@ -5,7 +5,8 @@ int main (int argc, char **argv){
         fprintf(stderr, "La sintaxis correcta es ./mi_rm disco /ruta");
         return EXIT_FAILURE;
     }
-    if(argv[2][strlen(argv[2] - 1)] == '/'){
+    char *aux = argv[2];
+    if(aux[strlen(aux) - 1] == '/'){
         fprintf(stderr, "No es un fichero válido\n");
         return EXIT_FAILURE;
     }
