@@ -25,4 +25,5 @@ $(LIBRARIES):
 
 .PHONY: clean
 clean:
-	rm -rf $(wildcard $(OBJ)/*.o) $(wildcard $(LIB)/*.o) *~ $(BIN)/*
+	rm -rf $(wildcard $(OBJ)/*.o) $(wildcard $(LIB)/*.o) *~ $(BIN)/* disco* ext*
+	
