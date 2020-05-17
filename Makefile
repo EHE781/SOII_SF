@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-c -g -Wall -std=gnu99
 #LDFLAGS=-pthread
-SRC=src
+SRC=src#nombres directorios
 OBJ=obj
 BIN=bin
 INC=$(SRC)/headers
@@ -15,15 +15,18 @@ OBJS=$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SOURCES))
 all: $(OBJS) $(PROGRAMS)
 
 $(PROGRAMS): $(LIBRARIES) $(INCLUDES)
+	@mkdir -p $(BIN)
 	$(CC) $(LDFLAGS) $(LIB)/*.o $(OBJ)/$@.o -o $(BIN)/$@
 
 $(OBJ)/%.o: $(SRC)/%.c $(INC)/*.h
+	@mkdir -p $(OBJ)
 	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
 
 $(LIBRARIES):
+	@mkdir -p $(LIB)
 	cp $(OBJ)/$@ $(LIB)
 
 .PHONY: clean
 clean:
-	rm -rf $(wildcard $(OBJ)/*.o) $(wildcard $(LIB)/*.o) *~ $(BIN)/* disco* ext*
+	rm -rf $(OBJ) *~ $(BIN) disco* ext*
 	
