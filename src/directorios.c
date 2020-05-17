@@ -217,7 +217,7 @@ int mi_creat(const char *camino, unsigned char permisos)
     if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 1, permisos)) < 0)
     {
         mostrar_error_buscar_entrada(error);
-        printf("***********************************************************************\n");
+        fprintf(stderr, "***********************************************************************\n");
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
@@ -677,4 +677,42 @@ int mi_unlink(const char *camino, bool rmdir_r)
         }
         return EXIT_SUCCESS;
     }
+}
+
+int mi_rn(const char *caminoViejo, const char *caminoNuevo){
+    bread(posSB, &SB);
+    unsigned int p_inodo_dir, p_inodo;
+    p_inodo_dir = p_inodo = SB.posInodoRaiz;
+    unsigned int p_entrada = 0;
+    int error;
+    //leemos el inodo, así que permisos bastan los de lectura
+    if ((error = buscar_entrada(caminoViejo, &p_inodo_dir, &p_inodo, &p_entrada, 0, 4)) < 0)
+    {
+        mostrar_error_buscar_entrada(error);
+        #if DEBUG
+        printf("***********************************************************************\n");
+        #endif
+        return EXIT_FAILURE;
+    }
+    int p_entrada_Aux = p_entrada;
+    if ((error = buscar_entrada(caminoNuevo, &p_inodo_dir, &p_inodo, &p_entrada, 1, 6)) < 0)
+    {   
+        mostrar_error_buscar_entrada(error);
+        #if DEBUG
+        printf("***********************************************************************\n");
+        #endif
+        return EXIT_FAILURE;
+    }
+    struct entrada entradaVieja;
+    struct entrada entradaNueva;
+    struct inodo inodo_dir;
+    mi_read_f(p_inodo_dir, &entradaVieja, sizeof(struct entrada) * p_entrada_Aux, sizeof(struct entrada));
+    mi_read_f(p_inodo_dir, &entradaNueva, sizeof(struct entrada) * p_entrada, sizeof(struct entrada));
+    liberar_inodo(entradaNueva.ninodo);
+    strcpy(entradaVieja.nombre, entradaNueva.nombre);
+    leer_inodo(p_inodo_dir, &inodo_dir);
+    mi_truncar_f(p_inodo_dir, (inodo_dir.tamEnBytesLog - sizeof(struct entrada)));
+    mi_write_f(p_inodo_dir, &entradaVieja, sizeof(struct entrada) * p_entrada_Aux, sizeof(struct entrada));
+    escribir_inodo(p_inodo_dir, inodo_dir);
+    return EXIT_SUCCESS;
 }
