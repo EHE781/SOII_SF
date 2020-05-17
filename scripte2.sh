@@ -217,7 +217,6 @@ echo "$ bin/./mi_rm disco /dir2/dir21/" #o mi_rmdir
 bin/./mi_rmdir disco /dir2/dir21/
 echo "$ bin/./mi_ls disco /dir2/"
 bin/./mi_ls disco /dir2/ -l
-
 echo "######################################################################"
 echo
 echo "                                 /"
