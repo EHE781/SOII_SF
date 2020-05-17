@@ -127,7 +127,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 {
 
                     entrada.ninodo = reservar_inodo('f', 6);
-                    printf("04[buscar_entrada()->reservado inodo: %d tipo 'f' con permisos %c para: %s]\n", num_entrada_inodo, permisos, entrada.nombre);
+                    printf("04[buscar_entrada()->reservado inodo: %d tipo 'f' con permisos %c para: %s]\n", entrada.ninodo, permisos, entrada.nombre);
                 }
                 error = mi_write_f(*p_inodo_dir, &entrada, inodo_dir.tamEnBytesLog,
                                    sizeof(struct entrada));
@@ -207,6 +207,10 @@ int mi_creat(const char *camino, unsigned char permisos)
     p_inodo_dir = p_inodo = SB.posInodoRaiz;
     unsigned int p_entrada = 0;
     int error;
+    if(camino[0] == '/' && strlen(camino) == 1){
+        fprintf(stderr, "No se puede crear la raíz\n");
+        return EXIT_FAILURE;
+    }
     if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 1, permisos)) < 0)
     {
         mostrar_error_buscar_entrada(error);
@@ -490,7 +494,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
                 {
                     p_inodo = UltimasEntradas[i].p_inodo;
                     encontrado = true;
-                    fprintf(stderr, CYAN "\n[mi_read() → Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]\n" RESET);
+                    //fprintf(stderr, CYAN "\n[mi_read() → Utilizamos la caché de lectura en vez de llamar a buscar_entrada()]\n" RESET);
                     break;
                 }
             }
@@ -508,7 +512,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
                     strcpy(UltimasEntradas[i].camino, camino);
                     UltimasEntradas[i].p_inodo = p_inodo;
                     break;
-                    fprintf(stderr, CYAN "\n[mi_write() → Actualizamos la caché de lectura]\n" RESET);
+                    //fprintf(stderr, CYAN "\n[mi_write() → Actualizamos la caché de lectura]\n" RESET);
                 }
             }
             if (UltimasEntradas[CACHE].camino[0] != '\000' && !encontrado)
@@ -520,7 +524,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
                 }
                 strcpy(UltimasEntradas[CACHE].camino, camino);
                 UltimasEntradas[CACHE].p_inodo = p_inodo;
-                fprintf(stderr, CYAN "\n[mi_write() → Actualizamos la caché de lectura]\n" RESET);
+                //fprintf(stderr, CYAN "\n[mi_write() → Actualizamos la caché de lectura]\n" RESET);
             }
         }
         total += mi_read_f(p_inodo, buf, offset, nbytes);
@@ -609,13 +613,23 @@ int mi_unlink(const char *camino, bool rmdir_r)
     {
         if (rmdir_r)
         {                                    //si es un directorio y da igual que esté o no vacío
-            leer_inodo(p_inodo, &inodo_dir); //el inodo pasa a ser el dir a mirar
+            leer_inodo(p_inodo, &inodo_dir);
             int entradas = inodo_dir.tamEnBytesLog / sizeof(struct entrada);
-            for (int i = 0; i < entradas; i++)
-            {
-                mi_read_f(p_inodo_dir, &entrada, (sizeof(struct entrada) * i), sizeof(struct entrada));
-                liberar_inodo(entrada.ninodo);
+            for(int i = 0; i < entradas; i++){
+                mi_read_f(p_inodo, &entrada, (sizeof(struct entrada) * i), (sizeof(struct entrada)));
+                leer_inodo(entrada.ninodo, &inodo);
+                if(inodo.tipo == 'd'){
+                    char *aux = malloc(TAMFILA);
+                    memset(aux, 0, sizeof(char) * TAMFILA);
+                    strcpy(aux, camino);
+                    strcat(aux, entrada.nombre);
+                    strcat(aux, "/");
+                    mi_unlink(aux, true);
+                }else{
+                    liberar_inodo(entrada.ninodo);
+                }
             }
+            liberar_inodo(p_inodo);
         }
         else
         {
