@@ -90,9 +90,8 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 offset += mi_read_f(*p_inodo_dir, &buf_entradas, offset, BLOCKSIZE);
             }
         }
-        //return EXIT_SUCCESS; ????????que hace esto aqui
     }
-    if ((num_entrada_inodo == cant_entradas_inodo) && (inicial != buf_entradas[num_entrada_inodo].nombre))
+    if ((num_entrada_inodo == cant_entradas_inodo) && (inicial != buf_entradas[num_entrada_inodo % (BLOCKSIZE / sizeof(struct entrada))].nombre))
     {
         //printf("00[buscar_entrada()-> inicial: %s, final: %s, reserva: %d] \n",inicial,final,reservar);
         switch (reservar)
@@ -156,7 +155,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         // cortamos la recursividad
         if (!creado)
         {
-            *p_inodo = buf_entradas[num_entrada_inodo].ninodo;
+            *p_inodo = buf_entradas[num_entrada_inodo % (BLOCKSIZE / sizeof(struct entrada))].ninodo;
         }
         else
         {
@@ -249,15 +248,11 @@ int mi_dir(const char *camino, char *buffer, char *tipo, bool ext)
             //p_inodo = entrada.ninodo;
             for (int i = 0; i < cant_entradas_inodo; i++)
             {
-                if ((offset % (BLOCKSIZE / sizeof(struct entrada))) == 0)
-                {
-                    offset += mi_read_f(p_inodo, &entrada, offset, sizeof(struct entrada));
-                }
-                leer_inodo(buf_entradas[i].ninodo, &inodo);
+                leer_inodo(buf_entradas[i % (BLOCKSIZE / sizeof(struct entrada))].ninodo, &inodo);
                 if (ext == false)
                 {
                     strcat(buffer, GREEN);
-                    strcat(buffer, buf_entradas[i].nombre); //ponemos el nombre en el buffer
+                    strcat(buffer, buf_entradas[i % (BLOCKSIZE / sizeof(struct entrada))].nombre); //ponemos el nombre en el buffer
                     strcat(buffer, RESET);
                 }
                 else
@@ -308,7 +303,7 @@ int mi_dir(const char *camino, char *buffer, char *tipo, bool ext)
                     strcat(buffer, array);
                     strcat(buffer, "\t");
                     strcat(buffer, GREEN);
-                    strcat(buffer, buf_entradas[i].nombre); //ponemos el nombre en el buffer
+                    strcat(buffer, buf_entradas[i % (BLOCKSIZE / sizeof(struct entrada))].nombre); //ponemos el nombre en el buffer
                     strcat(buffer, RESET);
                 }
                 if ((strlen(buffer) % TAMFILA) != 0)
@@ -319,6 +314,10 @@ int mi_dir(const char *camino, char *buffer, char *tipo, bool ext)
                     }
                 }
                 strcat(buffer, "\n"); //separador para la próxima entrada
+                if ((offset % (BLOCKSIZE / sizeof(struct entrada))) == 0)
+                {
+                    offset += mi_read_f(p_inodo, buf_entradas, offset, sizeof(struct entrada));
+                }
             }
         }
         else
@@ -581,4 +580,72 @@ int mi_link(const char *camino1, const char *camino2)
     inodo.ctime = time(NULL);
     escribir_inodo(p_inodo1, inodo);
     return EXIT_SUCCESS;
+}
+
+int mi_unlink(const char *camino, bool rmdir_r)
+{
+    bread(posSB, &SB);
+    unsigned int p_inodo_dir, p_inodo;
+    p_inodo_dir = p_inodo = SB.posInodoRaiz;
+    unsigned int p_entrada = 0;
+    int error;
+    //leemos el inodo, así que permisos bastan los de lectura
+    if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 4)) < 0)
+    {
+        mostrar_error_buscar_entrada(error);
+        printf("***********************************************************************\n");
+        return EXIT_FAILURE;
+    }
+    struct inodo inodo;
+    struct inodo inodo_dir;
+    struct entrada entrada;
+    leer_inodo(p_inodo, &inodo);
+    if (inodo.tipo == 'd' && inodo.tamEnBytesLog > 0 && !rmdir_r)
+    {
+        fprintf(stderr, "El directorio no está vacío\n");
+        return EXIT_FAILURE;
+    }
+    else
+    {
+        if (rmdir_r)
+        {                                    //si es un directorio y da igual que esté o no vacío
+            leer_inodo(p_inodo, &inodo_dir); //el inodo pasa a ser el dir a mirar
+            int entradas = inodo_dir.tamEnBytesLog / sizeof(struct entrada);
+            for (int i = 0; i < entradas; i++)
+            {
+                mi_read_f(p_inodo_dir, &entrada, (sizeof(struct entrada) * i), sizeof(struct entrada));
+                liberar_inodo(entrada.ninodo);
+            }
+        }
+        else
+        {
+            leer_inodo(p_inodo_dir, &inodo_dir);
+            int entradas = inodo_dir.tamEnBytesLog / sizeof(struct entrada);
+            if (p_entrada == (entradas - 1))
+            {
+                mi_truncar_f(p_inodo_dir, (inodo_dir.tamEnBytesLog - sizeof(struct entrada)));
+            }
+            else
+            {
+                struct entrada ultima_entrada;
+                mi_read_f(p_inodo_dir, &entrada, (sizeof(struct entrada) * p_entrada), sizeof(struct entrada));
+                mi_read_f(p_inodo_dir, &ultima_entrada, (sizeof(struct entrada) * (entradas - 1)), sizeof(struct entrada));
+                strcpy(entrada.nombre, ultima_entrada.nombre);
+                entrada.ninodo = ultima_entrada.ninodo; //le asignamos el mismo inodo que la ultima entrada
+                mi_write_f(p_inodo_dir, &entrada, (sizeof(struct entrada) * p_entrada), sizeof(struct entrada));
+                mi_truncar_f(p_inodo_dir, (inodo_dir.tamEnBytesLog - sizeof(struct entrada)));
+                inodo.nlinks--;
+                if (inodo.nlinks == 0)
+                {
+                    liberar_inodo(p_inodo);
+                }
+                else
+                {
+                    inodo.ctime = time(NULL);
+                    escribir_inodo(p_inodo, inodo);
+                }
+            }
+        }
+        return EXIT_SUCCESS;
+    }
 }
