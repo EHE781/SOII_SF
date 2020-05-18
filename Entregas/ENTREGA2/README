@@ -1,0 +1,8 @@
+ENTREGA 2
+Autores: Bartomeu Capó Salas, Emanuel Hegedus, Pau Capellá Ballester
+Grupo: MDK
+Se han intentado implementar todos los extras posibles.
+El programa mi_ls funciona con un parámetro adicional, "-l", sin el cual solo muestra los nombres de los directorios/ficheros (en su sintaxis aparece donde colocarlo si se quiere visualizar toda la información).
+El programa mi_rmdir permite el parámetro -r, sin el cual no borraría todo el contenido de un directorio no vacío.
+Los programas mi_cat y mi_escribir disponen de una caché de 5 espacios para 5 caminos, para ahorrar llamadas a buscar_entrada(), implementada con FIFO.
+El Makefile solo necesita la carpeta src, que contiene todos los archivos ".c", y dentro de esta la carpeta 'headers', que contiene todos los ".h". A partir de dicha carpeta crea la carpeta 'obj', donde mete todos los archivos ".o", la carpeta 'include', que contiene las librerias, y la carpeta 'bin', que contiene todos los ejecutables. Al hacer 'make clean', borra todas las carpetas menos 'src', y se ha implementado que también borre 'disco' y 'ext'.
