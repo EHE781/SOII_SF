@@ -40,13 +40,13 @@ int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset
             mi_signalSem();
         }
         total += offset;
+        mi_waitSem();
         leer_inodo(ninodo, &inodo);//volvemos a leer el inodo, se han reservado bloques
         if(inodo.tamEnBytesLog < total){//modifica EOF fichero
             inodo.tamEnBytesLog = total; //Si lo escrito ocupa más que lo que ya habia
             inodo.ctime = time(NULL);// Actualizamos ctime, hemos modificado el inodo
         }
         inodo.mtime = time (NULL);//modificamos mtime, hemos escrito datos
-        mi_waitSem();
         escribir_inodo(ninodo, inodo);//escribimos el inodo
         mi_signalSem();
         return total; //nbytes escritos que si va bien deberia ser total=nbytes
@@ -122,8 +122,9 @@ int mi_read_f(unsigned int ninodo, void *buf_original,unsigned int offset,unsign
                     bytesLeidos += BLOCKSIZE;
                 }
         }
-        inodo.atime = time(NULL);
         mi_waitSem();
+        leer_inodo(ninodo, &inodo);
+        inodo.atime = time(NULL);
         escribir_inodo(ninodo, inodo);
         mi_signalSem();
         return bytesLeidos;
@@ -155,10 +156,10 @@ int mi_stat_f(unsigned int ninodo, struct STAT *p_stat){
 }
 int mi_chmod_f(unsigned int ninodo, unsigned char permisos){
     struct inodo inodo;
+    mi_waitSem();
     leer_inodo(ninodo, &inodo);
     inodo.permisos = permisos;
     inodo.ctime = time(NULL);
-    mi_waitSem();
     escribir_inodo(ninodo, inodo);
     mi_signalSem();
     return EXIT_SUCCESS;
@@ -175,6 +176,7 @@ int mi_truncar_f(unsigned int ninodo, unsigned int nbytes){
     //Para saber que nº de bloque lógico le hemos de pasar como primer bloque lógico a liberar: 
     /*si nbytes % BLOCKSIZE = 0  entonces primerBL := nbytes/BLOCKSIZE 
     si_no primerBL := nbytes/BLOCKSIZE + 1*/
+    mi_waitSem();
     leer_inodo(ninodo, &inodo);
     if((inodo.permisos & 2) == 2){
         if (nbytes >= inodo.tamEnBytesLog){ //si es mayor o igual a los bytes del inodo
@@ -186,19 +188,17 @@ int mi_truncar_f(unsigned int ninodo, unsigned int nbytes){
         else{
             primerBL = nbytes/BLOCKSIZE + 1;
         }
-        mi_waitSem();
         int bloquesL = liberar_bloques_inodo(primerBL, &inodo);
-        mi_signalSem();
         inodo.numBloquesOcupados -= bloquesL;
         inodo.tamEnBytesLog = nbytes;
         inodo.mtime = time(NULL);
         inodo.ctime = time(NULL);
-        mi_waitSem();
         escribir_inodo(ninodo, inodo);
         mi_signalSem();
         return bloquesL;
     }
     else{
+        mi_signalSem();
         fprintf(stderr, "\n¡No hay permisos de escritura!\n");
         return EXIT_FAILURE;
     }
