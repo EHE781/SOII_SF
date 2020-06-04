@@ -422,7 +422,7 @@ int mi_chmod(const char *camino, unsigned char permisos)
     mi_chmod_f(p_inodo, permisos);
     return EXIT_SUCCESS;
 }
-
+//DEVUELVE EL INODO ANALIZADO
 int mi_stat(const char *camino, struct STAT *p_stat)
 {
     bread(posSB, &SB);

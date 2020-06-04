@@ -4,12 +4,14 @@ CFLAGS=-c -g -Wall -std=gnu99
 SRC=src#nombres directorios
 OBJ=obj
 BIN=bin
+EMPTY=
 INC=$(SRC)/headers
 LIB=$(OBJ)/include
+PROG=$(SRC)/cPrograms
 SOURCES=$(wildcard $(SRC)/*.c)#todos los .c
 LIBRARIES=$(patsubst $(INC)/%.h, $(LIB)/%.o, $(INCLUDES)) #que ponemos como biblioteca
 INCLUDES=$(wildcard $(INC)/*.h)#todos los .h
-PROGRAMS=mi_mkfs leer_sf escribir leer permitir truncar pruebas pruebasDirectorios mi_mkdir mi_touch mi_ls mi_chmod mi_stat mi_escribir mi_cat mi_escribir_varios mi_link mi_rm mi_rmdir
+PROGRAMS=$(subst $(PROG)/, $(EMPTY), $(patsubst %.c, %, $(wildcard $(PROG)/*.c)))
 OBJS=$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SOURCES))
 
 all: $(OBJS) $(PROGRAMS)
@@ -24,7 +26,7 @@ $(OBJ)/%.o: $(SRC)/%.c $(INC)/*.h
 
 $(LIBRARIES):
 	@mkdir -p $(LIB)
-	cp $(OBJ)/$@ $(LIB)
+	cp $(OBJ)/$(@F) $(LIB)
 
 .PHONY: clean
 clean:
