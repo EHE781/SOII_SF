@@ -1,4 +1,4 @@
-#include "headers/directorios.h"
+#include "../headers/directorios.h"
 
 int main(int argc, char **argv)
 {

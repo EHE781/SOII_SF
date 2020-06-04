@@ -1,4 +1,4 @@
-#include "headers/ficheros.h"
+#include "../headers/ficheros.h"
 
 int main(int argc, char **argv){
     const char *dir;

@@ -1,5 +1,5 @@
 // mi_escribir_varios.c para probar la caché L/E
-#include "directorios.h"
+#include "../headers/directorios.h"
 
 int main(int argc, char **argv)
 {

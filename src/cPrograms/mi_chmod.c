@@ -1,4 +1,4 @@
-#include "headers/directorios.h"
+#include "../headers/directorios.h"
 
 int main(int argc, char **argv){
     if (argv[1] == NULL || argv[2] == NULL || argv[3] == NULL){

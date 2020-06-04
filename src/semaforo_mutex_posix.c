@@ -1,6 +1,6 @@
 // semaforo_mutex_posix.c
 
-#include "headers/semaforo_mutex_posix.h"
+#include "../headers/semaforo_mutex_posix.h"
 
 /* Ejemplo de creación e inicialización de semáforos POSIX para MUTEX con "semáforos con nombre" (named) */
 

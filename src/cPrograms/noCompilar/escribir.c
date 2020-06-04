@@ -1,4 +1,4 @@
-#include "headers/ficheros.h"
+#include "../headers/ficheros.h"
 /*
 1.Pasarlo como argumento escribiéndolo en consola y utilizar la función strlen() para calcular su longitud
 2.Pasarlo como argumento haciendo el cat de cualquier fichero, por ejemplo un fichero.c de vuestra práctica de la siguiente manera:

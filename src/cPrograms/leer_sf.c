@@ -1,5 +1,5 @@
-#include    "headers/bloques.h"
-#include    "headers/ficheros_basico.h"
+#include    "../headers/bloques.h"
+#include    "../headers/ficheros_basico.h"
 const char *dir;
 struct superbloque SB;
 void *buf[BLOCKSIZE];

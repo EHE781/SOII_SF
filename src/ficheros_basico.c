@@ -1,4 +1,4 @@
-#include "headers/ficheros_basico.h"
+#include "../headers/ficheros_basico.h"
 #define DEBUG 0
 
 struct superbloque SB;

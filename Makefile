@@ -8,19 +8,20 @@ EMPTY=
 INC=$(SRC)/headers
 LIB=$(OBJ)/include
 PROG=$(SRC)/cPrograms
-SOURCES=$(wildcard $(SRC)/*.c)#todos los .c
+NOTPROG=$(PROG)/noCompilar
+VPATH=$(SRC)/:$(PROG)/:$(NOTPROG)/
+SOURCES=$(wildcard $(SRC)/*.c) $(wildcard $(PROG)/*.c) $(wildcard $(NOTPROG)/*.c)#todos los .c
 LIBRARIES=$(patsubst $(INC)/%.h, $(LIB)/%.o, $(INCLUDES)) #que ponemos como biblioteca
 INCLUDES=$(wildcard $(INC)/*.h)#todos los .h
 PROGRAMS=$(subst $(PROG)/, $(EMPTY), $(patsubst %.c, %, $(wildcard $(PROG)/*.c)))
-OBJS=$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SOURCES))
-
+OBJS=$(patsubst %.c, $(OBJ)/%.o, $(notdir $(SOURCES)))
 all: $(OBJS) $(PROGRAMS)
 
 $(PROGRAMS): $(LIBRARIES) $(INCLUDES)
 	@mkdir -p $(BIN)
 	$(CC) $(LDFLAGS) $(LIB)/*.o $(OBJ)/$@.o -o $(BIN)/$@
 
-$(OBJ)/%.o: $(SRC)/%.c $(INC)/*.h
+$(OBJ)/%.o: %.c $(INC)/*.h
 	@mkdir -p $(OBJ)
 	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
 

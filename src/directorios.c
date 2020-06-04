@@ -1,4 +1,4 @@
-#include "headers/directorios.h"
+#include "../headers/directorios.h"
 #define TAMFILA 100
 #define RED "\x1b[31m"
 #define GREEN "\x1b[32m"

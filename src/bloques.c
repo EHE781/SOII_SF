@@ -1,5 +1,5 @@
-#include "headers/bloques.h"
-#include "headers/semaforo_mutex_posix.h"
+#include "../headers/bloques.h"
+#include "../headers/semaforo_mutex_posix.h"
 
 static sem_t *mutex;
 static unsigned int inside_sc = 0;
