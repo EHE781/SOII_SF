@@ -117,7 +117,9 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 {
                     if (strcmp(final, "/") == 0)
                     {
+                        mi_waitSem();
                         entrada.ninodo = reservar_inodo('d', 6);
+                        mi_signalSem();
 #if DEBUG
                         fprintf(stderr, "[buscar_entrada()->reservado inodo: %d tipo 'd' con permisos %c para: %s]\n", entrada.ninodo, permisos, entrada.nombre);
 #endif
@@ -129,8 +131,9 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 }
                 else
                 {
-
+                    mi_waitSem();
                     entrada.ninodo = reservar_inodo('f', 6);
+                    mi_signalSem();
 #if DEBUG
                     fprintf(stderr, "[buscar_entrada()->reservado inodo: %d tipo 'f' con permisos %c para: %s]\n", entrada.ninodo, permisos, entrada.nombre);
 #endif
@@ -143,7 +146,9 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
                 {
                     if (entrada.ninodo != -1)
                     {
+                        mi_waitSem();
                         liberar_inodo(entrada.ninodo);
+                        mi_signalSem();
 #if DEBUG
                         fprintf(stderr, "[buscar_entrada()-> liberado inodo %i, reservado a %s\n", num_entrada_inodo, inicial);
 #endif
@@ -224,7 +229,9 @@ int mi_creat(const char *camino, unsigned char permisos)
     if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 1, permisos)) < 0)
     {
         mostrar_error_buscar_entrada(error);
+#if DEBUG
         fprintf(stderr, "***********************************************************************\n");
+#endif
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
@@ -612,11 +619,13 @@ int mi_link(const char *camino1, const char *camino2)
     mi_read_f(p_inodo_dir2, &entrada, (sizeof(struct entrada) * p_entrada2), sizeof(struct entrada));
     entrada.ninodo = p_inodo1; //le asignamos el mismo inodo que la entrada1
     mi_write_f(p_inodo_dir2, &entrada, (sizeof(struct entrada) * p_entrada2), sizeof(struct entrada));
+    mi_waitSem();
     liberar_inodo(p_inodo2); //liberamos el inodo creado para la entrada2
     leer_inodo(p_inodo1, &inodo);
     inodo.nlinks++;
     inodo.ctime = time(NULL);
     escribir_inodo(p_inodo1, inodo);
+    mi_signalSem();
     return EXIT_SUCCESS;
 }
 
@@ -666,10 +675,14 @@ int mi_unlink(const char *camino, bool rmdir_r)
                 }
                 else
                 {
+                    mi_waitSem();
                     liberar_inodo(entrada.ninodo);
+                    mi_signalSem();
                 }
             }
+            mi_waitSem();
             liberar_inodo(p_inodo);
+            mi_signalSem();
         }
         else
         {
@@ -689,6 +702,7 @@ int mi_unlink(const char *camino, bool rmdir_r)
                 mi_write_f(p_inodo_dir, &entrada, (sizeof(struct entrada) * p_entrada), sizeof(struct entrada));
                 mi_truncar_f(p_inodo_dir, (inodo_dir.tamEnBytesLog - sizeof(struct entrada)));
             }
+            mi_waitSem();
             inodo.nlinks--;
             if (inodo.nlinks == 0)
             {
@@ -699,6 +713,7 @@ int mi_unlink(const char *camino, bool rmdir_r)
                 inodo.ctime = time(NULL);
                 escribir_inodo(p_inodo, inodo);
             }
+            mi_signalSem();
         }
         return EXIT_SUCCESS;
     }
@@ -734,11 +749,15 @@ int mi_rn(const char *caminoViejo, const char *caminoNuevo)
     struct inodo inodo_dir;
     mi_read_f(p_inodo_dir, &entradaVieja, sizeof(struct entrada) * p_entrada_Aux, sizeof(struct entrada));
     mi_read_f(p_inodo_dir, &entradaNueva, sizeof(struct entrada) * p_entrada, sizeof(struct entrada));
+    mi_waitSem();
     liberar_inodo(entradaNueva.ninodo);
+    mi_signalSem();
     strcpy(entradaVieja.nombre, entradaNueva.nombre);
     leer_inodo(p_inodo_dir, &inodo_dir);
     mi_truncar_f(p_inodo_dir, (inodo_dir.tamEnBytesLog - sizeof(struct entrada)));
     mi_write_f(p_inodo_dir, &entradaVieja, sizeof(struct entrada) * p_entrada_Aux, sizeof(struct entrada));
+    mi_waitSem();
     escribir_inodo(p_inodo_dir, inodo_dir);
+    mi_signalSem();
     return EXIT_SUCCESS;
 }

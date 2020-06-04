@@ -1,9 +1,15 @@
 #include "headers/bloques.h"
+#include "headers/semaforo_mutex_posix.h"
+
+static sem_t *mutex;
+static unsigned int inside_sc = 0;
+
 static int fd = 0; //file descriptor
 /*MONTA EL SISTEMA DE FICHEROS Y DEVUELVE EL 
 DESCRIPTOR DE FICHERO DEL FICHERO DESDE EL QUE
 SE HA MONTADO EL SISTEMA DE FICHEROS*/
 int bmount(const char *camino){
+    mutex = initSem();
     umask(000);//inicializar los permisos del fichero. 000 indica que se puede leer/escribir/ejecutar
     fd = open(camino, O_RDWR|O_CREAT, 0666);
 if(fd == -1){
@@ -15,6 +21,7 @@ return  fd;
 /*DESMONTA EL SISTEMA DE FICHEROS MONTADO ANTERIORMENTE
 Y DEVUELVE EXIT_SUCCESS SI NO HAY PROBLEMAS*/
 int bumount(){
+    deleteSem();
    int check = close(fd);
    if(check == -1){
        fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
@@ -45,3 +52,17 @@ int bread(unsigned int nbloque, void *buf){
     }
     return rbytes;
 }
+//CONTROL SEMÁFOROS
+void mi_waitSem(){
+if (!inside_sc) {
+waitSem(mutex);
+}
+inside_sc++;
+}
+void mi_signalSem() {
+inside_sc--;
+if (!inside_sc) {
+    signalSem(mutex);
+}
+}
+
