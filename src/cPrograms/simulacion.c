@@ -1,5 +1,5 @@
 #include "../headers/directorios.h"
-#include "../headers/simulacion.h"
+#include "../headers/noInclude/simulacion.h"
 #include <sys/wait.h>
 #include <signal.h>
 #define REGMAX 500000
@@ -20,8 +20,9 @@ void reaper(){
 }
 
 int main(int argc, char **argv){
-    if(argc != 1){
+    if(argc != 2){
         fprintf(stderr, "La sintaxis correcta es: ./simulacion <disco>\n");
+        return EXIT_FAILURE;
     }
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
@@ -32,9 +33,10 @@ int main(int argc, char **argv){
     char *temp = malloc(3);
     strcpy(camino, "/simul_");
     bmount(argv[1]);
-    sprintf(tiempo, "%d%02d%02d%02d%02d%02d\n", tm.tm_year + 1900, 
+    sprintf(tiempo, "%d%02d%02d%02d%02d%02d", tm.tm_year + 1900, 
     tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
     strcat(camino, tiempo);
+    strcat(camino, "/");
     if((mi_creat(camino, 6)) == EXIT_FAILURE){
         bumount(argv[1]);
         return EXIT_FAILURE;
@@ -43,11 +45,13 @@ int main(int argc, char **argv){
     for(int proceso = 1; proceso <= 100; proceso ++){
         strcpy(camino_d, "");
         strcpy(camino_f, "");
-        if(fork() == 0){
+        pid_t pid = fork();
+        if(pid == 0){
             bmount(argv[1]);
             sprintf(camino_d, "proceso_PID");
             snprintf( temp, 3, "%d", getpid() );
             strcat(camino_d, temp);
+            strcat(camino_d, "/");
             if((mi_creat(camino_d, 6)) == EXIT_FAILURE){
                 bumount(argv[1]);
             }
