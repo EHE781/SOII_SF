@@ -79,22 +79,23 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     int num_entrada_inodo = 0;
     int cant_entradas_inodo = inodo_dir.tamEnBytesLog / sizeof(struct entrada);
     int offset = 0;
+    int maxBuffer = BLOCKSIZE / sizeof(struct entrada);
     memset(buf_entradas, 0, (BLOCKSIZE / sizeof(struct entrada)) * sizeof(struct entrada));
     if (cant_entradas_inodo > 0)
     {
         //leemos entradas
         offset += mi_read_f(*p_inodo_dir, buf_entradas, offset, BLOCKSIZE);
         //leemos primera entrada(0)
-        while ((num_entrada_inodo < cant_entradas_inodo) && (strcmp(inicial, buf_entradas[num_entrada_inodo].nombre) != 0))
+        while ((num_entrada_inodo < cant_entradas_inodo) && (strcmp(inicial, buf_entradas[num_entrada_inodo % maxBuffer].nombre) != 0))
         {
             num_entrada_inodo++;
-            if ((num_entrada_inodo % (BLOCKSIZE / sizeof(struct entrada))) == 0)
+            if ((num_entrada_inodo % maxBuffer) == 0)
             { //hemos leido el buffer entero
                 offset += mi_read_f(*p_inodo_dir, &buf_entradas, offset, BLOCKSIZE);
             }
         }
     }
-    if ((num_entrada_inodo == cant_entradas_inodo) && (inicial != buf_entradas[num_entrada_inodo % (BLOCKSIZE / sizeof(struct entrada))].nombre))
+    if ((num_entrada_inodo == cant_entradas_inodo) && (inicial != buf_entradas[num_entrada_inodo % maxBuffer].nombre))
     {
         switch (reservar)
         {
@@ -169,7 +170,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
         // cortamos la recursividad
         if (!creado)
         {
-            *p_inodo = buf_entradas[num_entrada_inodo % (BLOCKSIZE / sizeof(struct entrada))].ninodo;
+            *p_inodo = buf_entradas[num_entrada_inodo % maxBuffer].ninodo;
         }
         else
         {
@@ -180,7 +181,7 @@ int buscar_entrada(const char *camino_parcial, unsigned int *p_inodo_dir, unsign
     }
     else
     {
-        *p_inodo_dir = buf_entradas[num_entrada_inodo].ninodo;
+        *p_inodo_dir = buf_entradas[num_entrada_inodo % maxBuffer].ninodo;
         return buscar_entrada(final, p_inodo_dir, p_inodo, p_entrada, reservar, permisos);
     }
 }
@@ -204,7 +205,7 @@ void mostrar_error_buscar_entrada(int error)
         break;
     case -5:
         fprintf(stderr, "Error: Permiso denegado de escritura.\n");
-        break; //decir algo sobre el padre sin permisos????duda
+        break;
     case -6:
         fprintf(stderr, "Error: El archivo ya existe.\n");
         break;
@@ -216,6 +217,7 @@ void mostrar_error_buscar_entrada(int error)
 
 int mi_creat(const char *camino, unsigned char permisos)
 {
+    mi_waitSem();
     bread(posSB, &SB);
     unsigned int p_inodo_dir, p_inodo;
     p_inodo_dir = p_inodo = SB.posInodoRaiz;
@@ -228,12 +230,14 @@ int mi_creat(const char *camino, unsigned char permisos)
     }
     if ((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 1, permisos)) < 0)
     {
+        mi_signalSem();
         mostrar_error_buscar_entrada(error);
 #if DEBUG
         fprintf(stderr, "***********************************************************************\n");
 #endif
         return EXIT_FAILURE;
     }
+    mi_signalSem();
     return EXIT_SUCCESS;
 }
 
