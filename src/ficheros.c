@@ -10,34 +10,34 @@ int mi_write_f(unsigned int ninodo, const void *buf_original,unsigned int offset
         int ultimoBLogico = (offset + nbytes - 1) / BLOCKSIZE;
         int desp1 = offset % BLOCKSIZE;
         int desp2 = (offset + nbytes - 1) % BLOCKSIZE;
+        mi_waitSem();
         int BFisico = traducir_bloque_inodo(ninodo,primerBLogico,1);
+        mi_signalSem();
         if(desp1 != 0){
             bread(BFisico, buf_bloque);
         }
         if(primerBLogico == ultimoBLogico){
             memcpy(buf_bloque + desp1, buf_original, desp2 + 1 - desp1);//-desp1...
             total += desp2 + 1 - desp1;
-            mi_waitSem();
             bwrite(BFisico, buf_bloque);
-            mi_signalSem();
         }
         else{
             desp2 = offset + nbytes - 1;
             memcpy (buf_bloque + desp1, buf_original, BLOCKSIZE - desp1);
             total += BLOCKSIZE - desp1;
-            mi_waitSem();
             bwrite(BFisico, buf_bloque);
+            mi_waitSem();
             for(int i = primerBLogico + 1; i != ultimoBLogico; i ++){
                 BFisico = traducir_bloque_inodo(ninodo, i, 1);
                 total += bwrite(BFisico, (buf_original + (BLOCKSIZE - desp1) + (i - primerBLogico - 1) * BLOCKSIZE));
             }
             desp2 = desp2 % BLOCKSIZE;
             BFisico = traducir_bloque_inodo(ninodo, ultimoBLogico, 1);
+            mi_signalSem();
             bread(BFisico, buf_bloque);
             memcpy (buf_bloque, buf_original + (nbytes - desp2 - 1), desp2 + 1);
             total += desp2 + 1;
             bwrite(BFisico, buf_bloque);
-            mi_signalSem();
         }
         total += offset;
         mi_waitSem();

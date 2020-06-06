@@ -4,31 +4,41 @@
 static sem_t *mutex;
 static unsigned int inside_sc = 0;
 
-static int fd = 0; //file descriptor
+static int fd = 0; //file fd
 /*MONTA EL SISTEMA DE FICHEROS Y DEVUELVE EL 
 DESCRIPTOR DE FICHERO DEL FICHERO DESDE EL QUE
 SE HA MONTADO EL SISTEMA DE FICHEROS*/
-int bmount(const char *camino){
-    mutex = initSem();
-    umask(000);//inicializar los permisos del fichero. 000 indica que se puede leer/escribir/ejecutar
-    fd = open(camino, O_RDWR|O_CREAT, 0666);
-if(fd == -1){
-    fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
-    return EXIT_FAILURE;
+
+int bmount(const char *camino) {
+   if (fd > 0) {
+       close(fd);
+   }
+   if ((fd = open(camino, O_RDWR | O_CREAT, 0666)) == -1) {
+      fprintf(stderr, "Error: bloques.c → bmount() → open()\n");
+   }
+   if (!mutex) { //mutex == 0
+   //el semáforo es único y sólo se ha de inicializar una vez en nuestro sistema (lo hace el padre)
+       mutex = initSem(); //lo inicializa a 1
+       if (mutex == SEM_FAILED) {
+           return EXIT_FAILURE;
+       }
+   }
+   return fd;
 }
-return  fd;
-}
+
 /*DESMONTA EL SISTEMA DE FICHEROS MONTADO ANTERIORMENTE
 Y DEVUELVE EXIT_SUCCESS SI NO HAY PROBLEMAS*/
-int bumount(){
-    deleteSem();
-   int check = close(fd);
-   if(check == -1){
-       fprintf(stderr, "Error %d: %s\n", errno, strerror(errno));
+int bumount() {
+   fd = close(fd); 
+   // hay que asignar el resultado de la operación a la variable ya que bmount() la utiliza
+   if (fd == -1) {
+       fprintf(stderr, "Error: bloques.c → bumount() → close(): %d: %s\n", errno, strerror(errno));
        return EXIT_FAILURE;
    }
+   deleteSem(); // borramos semaforo 
    return EXIT_SUCCESS;
 }
+
 /*ESCRIBE UN BUFFER PASADO POR PARÁMETRO EN EL BLOQUE
 TAMBIÉN PASADO POR PARÁMETRO. DEVUELVE BYTES ESCRITOS*/
 int bwrite(unsigned int nbloque, const void *buf){

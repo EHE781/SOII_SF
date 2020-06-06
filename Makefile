@@ -19,6 +19,13 @@ all: $(OBJS) $(PROGRAMS)
 
 $(PROGRAMS): $(LIBRARIES) $(INCLUDES)
 	@mkdir -p $(BIN)
+	@echo LIBRARIES
+	@echo $(LIBRARIES)
+	@echo OBJECTS
+	@echo $(OBJS)
+	@echo PROGRAMS
+	@echo $(PROGRAMS)
+	@echo COMPILER:
 	$(CC) $(LDFLAGS) $(LIB)/*.o $(OBJ)/$@.o -o $(BIN)/$@
 
 $(OBJ)/%.o: %.c $(INC)/*.h

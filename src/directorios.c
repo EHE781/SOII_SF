@@ -449,7 +449,7 @@ int mi_stat(const char *camino, struct STAT *p_stat)
     mi_stat_f(p_inodo, p_stat);
     return p_inodo;
 }
-//DUDA ADELAIDA, SE PUEDE LA VARIABLE BOOLEANA Y SE PUEDE LEER SB YA EN DIRECTORIOS.C
+
 int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned int nbytes)
 {
     bread(posSB, &SB);
