@@ -45,7 +45,7 @@ int main(int argc, char **argv)
         struct REGISTRO buffer_escrituras[cant_registros_buffer_escrituras]; // espacio_ocupado = 256 * 24
         int temporal = 0;
         memset(buffer_escrituras, 0, sizeof(struct REGISTRO) * cant_registros_buffer_escrituras);
-        while ((offset = mi_read(const_path, buffer_escrituras, offset, sizeof(buffer_escrituras), false)) > 0)
+        while ((offset = mi_read(const_path, buffer_escrituras, offset, cant_registros_buffer_escrituras * sizeof(struct REGISTRO), false)) > 0)
         {
             memset(buffer_escrituras, 0, sizeof(struct REGISTRO) * cant_registros_buffer_escrituras);
             for (int i = 0; i < cant_registros_buffer_escrituras; i++)
@@ -96,9 +96,9 @@ int main(int argc, char **argv)
             tp = localtime(&info.MayorPosicion.fecha);
             strftime(maxfecha, sizeof(maxfecha), "%a %Y-%m-%d %H:%M:%S", tp);
 
-            char *buf = malloc(38485738);
-            memset(buf, 0, sizeof(buf));
-            sprintf(buf, "PID: %d\nNumero de escrituras:\t%d\nPrimera escritura:"
+            char *buf = malloc(BLOCKSIZE);
+            memset(buf, 0, sizeof(char)*BLOCKSIZE);
+            sprintf(buf, "PID: %d\nNumero de escrituras:\t%d\nsPrimera escritura:"
                          "\t%d\t%d\t%s\nUltima escritura:\t%d\t%d\t%s\nMenor po"
                          "sición:\t\t%d\t%d\t%s\nMayor posición:\t\t%d\t%d\t%s\n\n",
                     info.pid, info.nEscrituras, info.PrimeraEscritura.nEscritura,

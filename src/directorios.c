@@ -508,7 +508,8 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
 int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes, bool mostrar)
 {
     int total, check;
-    char *buffer_final = malloc(nbytes);
+    char *buffer_final[nbytes];
+    strcpy(buffer_final, "");
     total = check = 0;
     bool EndOfFile = false;
     bread(posSB, &SB);
@@ -535,13 +536,16 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
                 }
             }
 
-            if (!encontrado && (error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 2)) < 0)
+            if (!encontrado)
             {
+                p_inodo_dir = p_inodo = SB.posInodoRaiz;
+                if((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 2)) < 0){
                 mostrar_error_buscar_entrada(error);
 #if DEBUG
                 printf("***********************************************************************\n");
 #endif
                 return EXIT_FAILURE;
+            }
             }
             for (int i = 0; i < CACHE; i++)
             {
@@ -582,14 +586,15 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
             if(mostrar){
                 write(1, buf_aux, check);
             }
-            strcat(buffer_final, buf_aux);
+            memcpy(buffer_final, buf_aux, check);
+            
         }
         else
         {
             if(mostrar){
                 write(1, buf, check); //los que hemos leído esta vez
             }
-            strcat(buffer_final, buf);
+            memcpy(buffer_final, buf, check);
         }
         if (check == 0)
         {
@@ -597,7 +602,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
         }
         offset += check; //los que hemos leído esta vez
     }
-    strcpy(buf, buffer_final);
+    memcpy(buf, buffer_final, nbytes);
     return total; //retornamos todos los bytes que hemos leído en total
 }
 

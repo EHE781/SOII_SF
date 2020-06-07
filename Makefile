@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-c -g -Wall -std=gnu99
+CFLAGS=-c -g -O0 -Wall -std=gnu99
 LDFLAGS=-pthread
 SRC=src#nombres directorios
 OBJ=obj
