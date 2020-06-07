@@ -1,9 +1,5 @@
 #include "../headers/noInclude/simulacion.h"
 
-#define REGMAX 500000
-#define NUMPROCESOS 100
-#define NUMESCRITURAS 50
-
 int acabados = 0;
 
 void reaper(){
@@ -35,6 +31,7 @@ int main(int argc, char **argv){
         bumount(argv[1]); //si hay un error, desmontamos el disco
         return EXIT_FAILURE; //y salimos
     }
+    fprintf(stderr, "Directorio simulación: %s\n", camino);
     signal(SIGCHLD, reaper); //asignamos "reaper" a la señal SIGCHILD
 
     pid_t pid;

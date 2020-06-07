@@ -505,9 +505,10 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
     return mi_write_f(p_inodo, buf, offset, nbytes) - offset;
 }
 
-int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes)
+int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes, bool mostrar)
 {
     int total, check;
+    char *buffer_final = malloc(nbytes);
     total = check = 0;
     bool EndOfFile = false;
     bread(posSB, &SB);
@@ -578,11 +579,17 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
         {
             const char *buf_aux[check];
             memcpy(buf_aux, buf, check);
-            write(1, buf_aux, check);
+            if(mostrar){
+                write(1, buf_aux, check);
+            }
+            strcat(buffer_final, buf_aux);
         }
         else
         {
-            write(1, buf, check); //los que hemos leído esta vez
+            if(mostrar){
+                write(1, buf, check); //los que hemos leído esta vez
+            }
+            strcat(buffer_final, buf);
         }
         if (check == 0)
         {
@@ -590,6 +597,7 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
         }
         offset += check; //los que hemos leído esta vez
     }
+    strcpy(buf, buffer_final);
     return total; //retornamos todos los bytes que hemos leído en total
 }
 

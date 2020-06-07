@@ -2,6 +2,9 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include "../headers/directorios.h"
+#define REGMAX 500000
+#define NUMPROCESOS 100
+#define NUMESCRITURAS 50
 
 struct REGISTRO {
     time_t fecha; //fecha de la escritura en formato epoch 
