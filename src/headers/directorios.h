@@ -1,5 +1,8 @@
-#include "ficheros.h"
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "ficheros.h"
 #define ERROR_CAMINO_INCORRECTO -1
 #define ERROR_PERMISO_LECTURA -2
 #define ERROR_NO_EXISTE_ENTRADA_CONSULTA -3
@@ -30,5 +33,4 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
 int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes, bool mostrar);
 int mi_link(const char *camino1, const char *camino2);
 int mi_unlink(const char *camino, bool rmdir_r);
-//EXTRAS
-int mi_rn(const char *caminoViejo, const char *caminoNuevo);
+

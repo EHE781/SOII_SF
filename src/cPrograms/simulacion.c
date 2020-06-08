@@ -1,3 +1,4 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 #include "../headers/noInclude/simulacion.h"
 
 int acabados = 0;
@@ -61,14 +62,13 @@ int main(int argc, char **argv){
                 exit(0);
             }
             srand(time(NULL)+getpid()); //aleatorizamos el PID registral
-            struct REGISTRO registro;
             for(int i = 0; i < NUMESCRITURAS; i++){
+                struct REGISTRO registro;
                 registro.fecha = time(NULL);
                 registro.pid = getpid();
                 registro.nEscritura = i+1;
                 registro.nRegistro = rand() % REGMAX;
-                mi_write(camino_f, &registro, registro.nRegistro * sizeof(struct REGISTRO), 
-                sizeof(struct REGISTRO));
+                mi_write(camino_f, &registro, (registro.nRegistro * sizeof(struct REGISTRO)), sizeof(struct REGISTRO));
                 //fprintf(stderr, "[simulación.c → Escritura %d en %s\n", i, camino_f);
                 usleep(50000);
                 if(i == NUMESCRITURAS-1){

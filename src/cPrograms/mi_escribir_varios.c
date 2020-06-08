@@ -1,3 +1,4 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 // mi_escribir_varios.c para probar la caché L/E
 #include "../headers/directorios.h"
 

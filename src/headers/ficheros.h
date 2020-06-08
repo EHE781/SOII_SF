@@ -1,3 +1,11 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
+#include <stdio.h>           // printf(), fprintf(), stderr, stdout, stdin.
+#include <stdlib.h>          // exit(), EXIT_SUCCESS, EXIT_FAILURE, atoi().
+#include <unistd.h>          // read(), write(), open(), close(), lseek().
+#include <errno.h>           // errno.
+#include <string.h>          // strerror().
+#include <limits.h>          // límite numérico.
+#include <time.h>            // para el guardado de tiempos.
 #include "ficheros_basico.h"
 
 struct STAT {     // comprobar que ocupa 128 bytes haciendo un sizeof(inodo)!!!

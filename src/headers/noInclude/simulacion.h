@@ -1,8 +1,9 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 //simulación.h
 #include <sys/wait.h>
 #include <signal.h>
 #include "../headers/directorios.h"
-#define REGMAX 500000
+#define REGMAX 500000 //normal:500000
 #define NUMPROCESOS 100
 #define NUMESCRITURAS 50
 

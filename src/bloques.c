@@ -1,3 +1,4 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 #include "../headers/bloques.h"
 #include "../headers/semaforo_mutex_posix.h"
 

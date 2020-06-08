@@ -1,3 +1,4 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 #include "../headers/directorios.h"
 #define TAMFILA 100
 #define RED "\x1b[31m"
@@ -7,7 +8,7 @@
 #define MAGENTA "\x1b[35m"
 #define CYAN "\x1b[36m"
 #define RESET "\x1b[0m"
-#define CACHE 5
+#define CACHE 1
 #define DEBUG 0
 
 struct superbloque SB;
@@ -501,15 +502,12 @@ int mi_write(const char *camino, const void *buf, unsigned int offset, unsigned 
         fprintf(stderr, CYAN "\n[mi_write() → Actualizamos la caché de escritura]\n" RESET);
 #endif
     }
-
     return mi_write_f(p_inodo, buf, offset, nbytes) - offset;
 }
 
 int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nbytes, bool mostrar)
 {
     int total, check;
-    char *buffer_final[nbytes];
-    strcpy(buffer_final, "");
     total = check = 0;
     bool EndOfFile = false;
     bread(posSB, &SB);
@@ -536,16 +534,13 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
                 }
             }
 
-            if (!encontrado)
+            if (!encontrado && (error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 2)) < 0)
             {
-                p_inodo_dir = p_inodo = SB.posInodoRaiz;
-                if((error = buscar_entrada(camino, &p_inodo_dir, &p_inodo, &p_entrada, 0, 2)) < 0){
                 mostrar_error_buscar_entrada(error);
 #if DEBUG
                 printf("***********************************************************************\n");
 #endif
                 return EXIT_FAILURE;
-            }
             }
             for (int i = 0; i < CACHE; i++)
             {
@@ -583,18 +578,17 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
         {
             const char *buf_aux[check];
             memcpy(buf_aux, buf, check);
-            if(mostrar){
+            if (mostrar)
+            {
                 write(1, buf_aux, check);
             }
-            memcpy(buffer_final, buf_aux, check);
-            
         }
         else
         {
-            if(mostrar){
+            if (mostrar)
+            {
                 write(1, buf, check); //los que hemos leído esta vez
             }
-            memcpy(buffer_final, buf, check);
         }
         if (check == 0)
         {
@@ -602,7 +596,6 @@ int mi_read(const char *camino, void *buf, unsigned int offset, unsigned int nby
         }
         offset += check; //los que hemos leído esta vez
     }
-    memcpy(buf, buffer_final, nbytes);
     return total; //retornamos todos los bytes que hemos leído en total
 }
 

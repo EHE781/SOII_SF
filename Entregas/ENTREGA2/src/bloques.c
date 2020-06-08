@@ -1,3 +1,4 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 #include "headers/bloques.h"
 static int fd = 0; //file descriptor
 /*MONTA EL SISTEMA DE FICHEROS Y DEVUELVE EL 

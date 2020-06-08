@@ -1,3 +1,4 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 #include "headers/directorios.h"
 #define TAMFILA 100
 #define RED "\x1b[31m"

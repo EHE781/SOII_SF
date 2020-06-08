@@ -1,3 +1,4 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 #include "ficheros_basico.h"
 
 struct STAT {     // comprobar que ocupa 128 bytes haciendo un sizeof(inodo)!!!

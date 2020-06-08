@@ -1,3 +1,4 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 #include "ficheros_basico.h"
 struct superbloque SB;
 /*DEVUELVE EL TAMAÑO DEL MAPA DE BITS*/

@@ -1,3 +1,4 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 #include "bloques.h"
 #include "ficheros_basico.h"
 const char *cwd;

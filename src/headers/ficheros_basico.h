@@ -1,7 +1,13 @@
-#include "bloques.h"
-#include <time.h>
-#include <limits.h> 
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
+#include <stdio.h>   // printf(), fprintf(), stderr, stdout, stdin.
+#include <stdlib.h>  // exit(), EXIT_SUCCESS, EXIT_FAILURE, atoi().
+#include <unistd.h>  // SEEK_SET, read(), write(), open(), close(), lseek().
+#include <errno.h>   // errno.
+#include <string.h>  // strerror().
+#include <limits.h>  // límite numérico.
+#include <time.h>    // para el guardado de tiempos.
 #include <stdbool.h>
+#include "bloques.h"
 #define INODOSIZE 128
 #define posSB 0
 #define tamSB 1
@@ -55,7 +61,7 @@ struct inodo {     // comprobar que ocupa 128 bytes haciendo un sizeof(inodo)!!!
        padding[INODOSIZE - 2 * sizeof(unsigned char) - 3 * sizeof(time_t) - 18 * sizeof(unsigned int) - 6 * sizeof(unsigned char)];
    // Hay que restar también lo que ocupen las variables de alineación utilizadas!!!
 };
-struct inodo inodos[BLOCKSIZE/INODOSIZE];
+
 int tamMB(unsigned int nbloques);
 int tamAI(unsigned int ninodos);
 int initSB(unsigned int nbloques, unsigned int ninodos);

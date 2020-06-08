@@ -1,5 +1,8 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 #include "../headers/ficheros_basico.h"
 #define DEBUG 0
+
+struct inodo inodos[BLOCKSIZE/INODOSIZE];
 
 struct superbloque SB;
 /*DEVUELVE EL TAMAÑO DEL MAPA DE BITS*/

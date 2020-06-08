@@ -1,3 +1,4 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 #include "../headers/ficheros.h"
 /*
 1.Pasarlo como argumento escribiéndolo en consola y utilizar la función strlen() para calcular su longitud

@@ -1,3 +1,4 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 // semaforo_mutex_posix.c
 
 #include "../headers/semaforo_mutex_posix.h"

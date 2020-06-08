@@ -1,3 +1,4 @@
+//Autores: Emanuel Hegedus, Bartomeu Capo Salas, Pau Capellá Ballester
 #include "ficheros.h"
 #include <string.h>
 #define ERROR_CAMINO_INCORRECTO -1
@@ -7,7 +8,6 @@
 #define ERROR_ENTRADA_YA_EXISTENTE -6
 #define ERROR_NO_SE_PUEDE_CREAR_ENTRADA_EN_UN_FICHERO -7
 #define ERROR_PERMISO_ESCRITURA -5
-#define CAT 0
 
 struct entrada {
 char nombre[60];  //En el SF ext2 la longitud del nombre es 256
