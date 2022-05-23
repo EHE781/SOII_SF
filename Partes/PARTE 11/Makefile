@@ -15,6 +15,7 @@ LIBRARIES=$(patsubst $(INC)/%.h, $(LIB)/%.o, $(INCLUDES)) #que ponemos como bibl
 INCLUDES=$(wildcard $(INC)/*.h)#todos los .h
 PROGRAMS=$(subst $(PROG)/, $(EMPTY), $(patsubst %.c, %, $(wildcard $(PROG)/*.c)))
 OBJS=$(patsubst %.c, $(OBJ)/%.o, $(notdir $(SOURCES)))
+
 all: $(OBJS) $(PROGRAMS)
 
 $(PROGRAMS): $(LIBRARIES) $(INCLUDES)
